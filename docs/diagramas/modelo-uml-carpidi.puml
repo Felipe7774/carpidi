@@ -1,0 +1,260 @@
+@startuml Modelo UML de datos CARPIDI
+title CARPIDI - Modelo UML de clases y datos del MVP
+left to right direction
+hide methods
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor<<identity>> #E8F4EA
+  BackgroundColor<<catalog>> #EEE6F8
+  BackgroundColor<<orders>> #E5EEF9
+  BackgroundColor<<style>> #FFF0E3
+  BackgroundColor<<audit>> #F3F3F3
+  BorderColor #5C5C5C
+}
+
+package "Identidad y perfiles" {
+class User <<identity>> {
+  + id : UUID <<PK>>
+  --
+  + email : VARCHAR(254) <<UQ>>
+  + password_hash : VARCHAR(255)
+  + enabled : BOOLEAN
+  + created_at : TIMESTAMPTZ
+  + updated_at : TIMESTAMPTZ
+}
+class Role <<identity>> {
+  + id : UUID <<PK>>
+  --
+  + name : VARCHAR(20) <<UQ>>
+  + description : VARCHAR(255)
+}
+class UserRole <<identity>> {
+  + user_id : UUID <<PK, FK>>
+  + role_id : UUID <<PK, FK>>
+}
+class Customer <<identity>> {
+  + user_id : UUID <<PK, FK>>
+  --
+  + full_name : VARCHAR(150)
+  + phone : VARCHAR(30)
+  + marketing_consent : BOOLEAN
+}
+class AdminProfile <<identity>> {
+  + user_id : UUID <<PK, FK>>
+  --
+  + display_name : VARCHAR(100)
+}
+class RefreshToken <<identity>> {
+  + id : UUID <<PK>>
+  + user_id : UUID <<FK>>
+  --
+  + token_hash : VARCHAR(255) <<UQ>>
+  + expires_at : TIMESTAMPTZ
+  + revoked_at : TIMESTAMPTZ
+}
+}
+
+package "Catálogo e inventario" {
+class Category <<catalog>> {
+  + id : UUID <<PK>>
+  --
+  + name : VARCHAR(100) <<UQ>>
+  + slug : VARCHAR(120) <<UQ>>
+  + active : BOOLEAN
+}
+class Product <<catalog>> {
+  + id : UUID <<PK>>
+  + category_id : UUID <<FK>>
+  --
+  + name : VARCHAR(180)
+  + slug : VARCHAR(200) <<UQ>>
+  + description : TEXT
+  + base_price : DECIMAL(12,2)
+  + status : ProductStatus
+  + active : BOOLEAN
+  + version : BIGINT <<OptimisticLock>>
+  + created_at : TIMESTAMPTZ
+}
+class ProductVariant <<catalog>> {
+  + id : UUID <<PK>>
+  + product_id : UUID <<FK>>
+  --
+  + sku : VARCHAR(80) <<UQ>>
+  + size : VARCHAR(20)
+  + color : VARCHAR(50)
+  + price : DECIMAL(12,2)
+  + active : BOOLEAN
+}
+class ProductImage <<catalog>> {
+  + id : UUID <<PK>>
+  + product_id : UUID <<FK>>
+  --
+  + storage_key : VARCHAR(500)
+  + alt_text : VARCHAR(180)
+  + position : SMALLINT
+}
+class Inventory <<catalog>> {
+  + id : UUID <<PK>>
+  + variant_id : UUID <<FK, UQ>>
+  --
+  + available : INT
+  + reserved : INT
+  + reorder_level : INT
+  + version : BIGINT <<OptimisticLock>>
+  + updated_at : TIMESTAMPTZ
+}
+class InventoryAdjustment <<audit>> {
+  + id : UUID <<PK>>
+  + inventory_id : UUID <<FK>>
+  + admin_id : UUID <<FK>>
+  --
+  + delta : INT
+  + reason : VARCHAR(255)
+  + created_at : TIMESTAMPTZ
+}
+}
+
+package "Carrito, pedidos y pagos" {
+class Cart <<orders>> {
+  + id : UUID <<PK>>
+  + customer_id : UUID <<FK, UQ>>
+  --
+  + updated_at : TIMESTAMPTZ
+}
+class CartItem <<orders>> {
+  + id : UUID <<PK>>
+  + cart_id : UUID <<FK>>
+  + variant_id : UUID <<FK>>
+  --
+  + quantity : INT
+  + created_at : TIMESTAMPTZ
+}
+class Order <<orders>> {
+  + id : UUID <<PK>>
+  + customer_id : UUID <<FK>>
+  --
+  + status : OrderStatus
+  + total : DECIMAL(12,2)
+  + currency : CHAR(3)
+  + shipping_line1 : VARCHAR(180)
+  + shipping_city : VARCHAR(100)
+  + shipping_country : CHAR(2)
+  + created_at : TIMESTAMPTZ
+  + updated_at : TIMESTAMPTZ
+}
+class OrderDetail <<orders>> {
+  + id : UUID <<PK>>
+  + order_id : UUID <<FK>>
+  + variant_id : UUID <<FK>>
+  --
+  + product_name_snapshot : VARCHAR(180)
+  + sku_snapshot : VARCHAR(80)
+  + unit_price : DECIMAL(12,2)
+  + quantity : INT
+}
+class Payment <<orders>> {
+  + id : UUID <<PK>>
+  + order_id : UUID <<FK>>
+  --
+  + provider : VARCHAR(50)
+  + provider_reference : VARCHAR(150) <<UQ>>
+  + idempotency_key : UUID <<UQ>>
+  + amount : DECIMAL(12,2)
+  + status : PaymentStatus
+  + paid_at : TIMESTAMPTZ
+}
+class StockReservation <<orders>> {
+  + id : UUID <<PK>>
+  + variant_id : UUID <<FK>>
+  + order_id : UUID <<FK>>
+  --
+  + quantity : INT
+  + expires_at : TIMESTAMPTZ
+  + released_at : TIMESTAMPTZ
+}
+}
+
+package "Asesoría y comunidad" {
+class StyleQuestionnaire <<style>> {
+  + id : UUID <<PK>>
+  + customer_id : UUID <<FK>>
+  --
+  + body_type : VARCHAR(50)
+  + skin_tone : VARCHAR(50)
+  + height_range : VARCHAR(30)
+  + style_preferences : JSONB
+  + consent : BOOLEAN
+  + consented_at : TIMESTAMPTZ
+  + created_at : TIMESTAMPTZ
+}
+class Recommendation <<style>> {
+  + id : UUID <<PK>>
+  + customer_id : UUID <<FK>>
+  + product_id : UUID <<FK>>
+  + questionnaire_id : UUID <<FK>>
+  --
+  + reason : VARCHAR(500)
+  + score : DECIMAL(5,4)
+  + created_at : TIMESTAMPTZ
+}
+class Review <<style>> {
+  + id : UUID <<PK>>
+  + customer_id : UUID <<FK>>
+  + product_id : UUID <<FK>>
+  + order_detail_id : UUID <<FK, UQ>>
+  --
+  + rating : SMALLINT
+  + comment : TEXT
+  + status : ReviewStatus
+  + created_at : TIMESTAMPTZ
+}
+}
+
+User "1" -- "0..*" RefreshToken
+User "1" -- "0..*" UserRole
+Role "1" -- "0..*" UserRole
+User "1" -- "0..1" Customer
+User "1" -- "0..1" AdminProfile
+
+Category "1" -- "0..*" Product
+Product "1" -- "1..*" ProductVariant
+Product "1" -- "0..*" ProductImage
+ProductVariant "1" -- "1" Inventory
+Inventory "1" -- "0..*" InventoryAdjustment
+User "1" -- "0..*" InventoryAdjustment : administra >
+
+Customer "1" -- "0..1" Cart
+Cart "1" -- "0..*" CartItem
+ProductVariant "1" -- "0..*" CartItem
+Customer "1" -- "0..*" Order
+Order "1" -- "1..*" OrderDetail
+ProductVariant "1" -- "0..*" OrderDetail
+Order "1" -- "0..*" Payment
+Order "1" -- "0..*" StockReservation
+ProductVariant "1" -- "0..*" StockReservation
+
+Customer "1" -- "0..*" StyleQuestionnaire
+Customer "1" -- "0..*" Recommendation
+StyleQuestionnaire "0..1" -- "0..*" Recommendation
+Product "1" -- "0..*" Recommendation
+Customer "1" -- "0..*" Review
+Product "1" -- "0..*" Review
+OrderDetail "0..1" -- "0..1" Review : compra verificada >
+
+note bottom of Product
+  ProductStatus: DRAFT, ACTIVE,
+  INACTIVE, ARCHIVED
+end note
+note bottom of Order
+  OrderStatus: PENDING_PAYMENT, PAID,
+  PROCESSING, SHIPPED, DELIVERED,
+  CANCELLED, PAYMENT_FAILED
+end note
+note bottom of Payment
+  PaymentStatus: PENDING, APPROVED,
+  DECLINED, REFUNDED
+end note
+@enduml
