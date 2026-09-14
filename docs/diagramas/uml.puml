@@ -1,0 +1,81 @@
+@startuml
+left to right direction
+actor Clienta
+actor Administradora
+rectangle CARPIDI {
+  usecase "Comprar productos" as buy
+  usecase "Responder cuestionario" as quiz
+  usecase "Ver recomendaciones" as rec
+  usecase "Gestionar catálogo" as catalog
+  usecase "Gestionar pedidos" as orders
+}
+Clienta --> buy
+Clienta --> quiz
+Clienta --> rec
+Administradora --> catalog
+Administradora --> orders
+quiz .> rec : habilita
+@enduml
+
+@startuml
+class User { +UUID id +String email +String passwordHash +UserStatus status }
+class Role { +UUID id +String name }
+class Customer { +UUID id +String fullName }
+class Admin { +UUID id +String displayName }
+class Category { +UUID id +String name }
+class Product { +UUID id +String name +Money price +boolean active }
+class ProductVariant { +UUID id +String size +String color +Money price }
+class Inventory { +UUID id +int available +int reserved }
+class Order { +UUID id +OrderStatus status +Money total }
+class OrderDetail { +UUID id +int quantity +Money unitPrice }
+class Payment { +UUID id +PaymentStatus status +String providerReference }
+class StyleQuestionnaire { +UUID id +String bodyType +String skinTone +boolean consent }
+class Recommendation { +UUID id +String reason +float score }
+User "*" -- "*" Role
+User "1" -- "0..1" Customer
+User "1" -- "0..1" Admin
+Category "1" -- "*" Product
+Product "1" -- "*" ProductVariant
+ProductVariant "1" -- "1" Inventory
+Customer "1" -- "*" Order
+Order "1" -- "*" OrderDetail
+Order "1" -- "0..*" Payment
+Customer "1" -- "0..*" StyleQuestionnaire
+Customer "1" -- "0..*" Recommendation
+Recommendation "*" -- "1" Product
+@enduml
+
+@startuml
+actor Clienta
+participant Web
+participant API
+database DB
+participant Pago
+Clienta -> Web: confirmar compra
+Web -> API: POST /orders
+API -> DB: validar y reservar stock
+API -> Pago: crear intento de pago
+Pago --> API: referencia
+API --> Web: pedido pendiente
+Pago -> API: webhook de confirmación
+API -> DB: pago aprobado y pedido PAID
+@enduml
+
+@startuml
+start
+:Cliente revisa carrito;
+:API valida usuario, precio e inventario;
+if (¿Stock disponible?) then (sí)
+  :Reservar inventario;
+  :Crear pedido pendiente;
+  :Solicitar pago;
+  if (¿Pago aprobado?) then (sí)
+    :Confirmar pedido;
+  else (no)
+    :Liberar reserva;
+  endif
+else (no)
+  :Informar productos agotados;
+endif
+stop
+@enduml

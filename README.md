@@ -23,10 +23,24 @@ La primera versión del producto incluirá:
 - Inventario sincronizado, promociones y seguimiento de envíos.
 - Métricas de ventas y comportamiento de clientes.
 
-## Documentación
+## Arquitectura y documentación
 
 - [Visión del producto](docs/vision-del-producto.md)
 - [Plan inicial](docs/plan-inicial.md)
+- [Requisitos y reglas de negocio](docs/requisitos.md)
+- [Arquitectura de software](docs/arquitectura.md)
+- [Diseño de APIs REST](docs/api.md)
+- [Modelo relacional](docs/modelo-datos.md)
+- [Historias de usuario](docs/historias-usuario.md)
+- Diagramas C4 y UML en `docs/diagramas/` (PlantUML).
+
+## Ejecutar en desarrollo
+
+1. Inicia PostgreSQL y la API con `docker compose up --build`.
+2. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
+3. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
+
+> Antes de desplegar, reemplaza las credenciales de desarrollo y el secreto JWT por variables seguras del entorno.
 
 ## Estado
 

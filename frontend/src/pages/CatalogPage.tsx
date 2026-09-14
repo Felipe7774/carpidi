@@ -1,0 +1,2 @@
+import { Link } from 'react-router-dom';
+export function CatalogPage(){return <section><h1>Moda para ti</h1><p>Ropa, zapatos y accesorios. La asesoría de imagen es opcional.</p><div className="filters"><input aria-label="Buscar productos" placeholder="Buscar prendas"/><button>Filtrar</button></div><div className="grid"><article><div className="placeholder"/><h2>Próximamente</h2><p>El catálogo real se conectará a la API.</p><Link to="/productos/demo">Ver producto</Link></article></div></section>}

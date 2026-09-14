@@ -1,0 +1,46 @@
+@startuml C4Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+Person(customer, "Clienta", "Compra y recibe recomendaciones opcionales")
+Person(admin, "Administradora", "Gestiona catálogo, inventario y pedidos")
+System(carpidi, "CARPIDI", "Comercio electrónico de moda")
+System_Ext(payment, "Pasarela de pagos", "Autoriza y confirma pagos")
+System_Ext(shipping, "Operador logístico", "Gestiona envíos")
+Rel(customer, carpidi, "Compra, consulta pedidos")
+Rel(admin, carpidi, "Administra")
+Rel(carpidi, payment, "Solicita cobro", "HTTPS")
+Rel(carpidi, shipping, "Crea envío", "HTTPS")
+@enduml
+
+@startuml C4Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+Person(customer, "Clienta")
+System_Boundary(carpidi, "CARPIDI") {
+  Container(web, "Web SPA", "React + TypeScript", "Experiencia web")
+  Container(api, "API", "Spring Boot", "Casos de uso y seguridad")
+  ContainerDb(db, "Base de datos", "PostgreSQL", "Datos transaccionales")
+}
+System_Ext(payment, "Pasarela de pagos")
+Rel(customer, web, "Usa", "HTTPS")
+Rel(web, api, "Consume API", "JSON/HTTPS")
+Rel(api, db, "Lee y escribe", "JPA")
+Rel(api, payment, "Cobra", "HTTPS")
+@enduml
+
+@startuml Component
+skinparam componentStyle rectangle
+package "API Spring Boot" {
+  [AuthController] --> [IdentityService]
+  [ProductController] --> [CatalogService]
+  [OrderController] --> [OrderService]
+  [RecommendationController] --> [RecommendationService]
+  [IdentityService] --> [UserRepository]
+  [CatalogService] --> [ProductRepository]
+  [OrderService] --> [OrderRepository]
+  [RecommendationService] --> [QuestionnaireRepository]
+}
+database "PostgreSQL" as db
+[UserRepository] --> db
+[ProductRepository] --> db
+[OrderRepository] --> db
+[QuestionnaireRepository] --> db
+@enduml

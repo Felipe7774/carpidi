@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/carpidi}
+    username: ${SPRING_DATASOURCE_USERNAME:carpidi}
+    password: ${SPRING_DATASOURCE_PASSWORD:carpidi_dev}
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+  jackson.default-property-inclusion: non_null
+server.servlet.context-path: /api/v1
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:change-this-development-secret-with-at-least-32-characters}
+    access-ttl-minutes: 15
+    refresh-ttl-days: 14
