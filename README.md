@@ -40,6 +40,8 @@ La primera versión del producto incluirá:
 2. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
 3. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
 
+Para usar PostgreSQL gestionado gratuito durante el MVP, consulta la [configuración de Supabase](docs/supabase.md).
+
 > Antes de desplegar, reemplaza las credenciales de desarrollo y el secreto JWT por variables seguras del entorno.
 
 ## Estado

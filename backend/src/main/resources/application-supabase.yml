@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: supabase
+  datasource:
+    # Configurar con la cadena JDBC de Supabase, terminada en ?sslmode=require.
+    url: ${SUPABASE_DB_JDBC_URL}
+    username: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:3}
+  flyway:
+    # Usar la conexión directa de Supabase para aplicar migraciones.
+    url: ${SUPABASE_MIGRATION_JDBC_URL:${SUPABASE_DB_JDBC_URL}}
+    user: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
