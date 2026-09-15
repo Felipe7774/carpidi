@@ -1,0 +1,6 @@
+meta { name: Register client; type: http; seq: 1 }
+post { url: {{baseUrl}}/auth/register; body: json }
+headers { Content-Type: application/json }
+body:json {
+  {"name":"Diana Piragauta","email":"diana@example.com","password":"CarpidiSecure2026!"}
+}

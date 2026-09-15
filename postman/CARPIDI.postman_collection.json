@@ -1,0 +1,27 @@
+{
+  "info": {"_postman_id":"carpidi-mvp-v1","name":"CARPIDI API v1","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "variable": [{"key":"baseUrl","value":"http://localhost:8080/api/v1"}],
+  "item": [
+    {"name":"Auth","item":[
+      {"name":"Register client","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Diana Piragauta\",\n  \"email\": \"diana@example.com\",\n  \"password\": \"CarpidiSecure2026!\"\n}"},"url":"{{baseUrl}}/auth/register"}},
+      {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"email\": \"diana@example.com\",\n  \"password\": \"CarpidiSecure2026!\"\n}"},"url":"{{baseUrl}}/auth/login"},"event":[{"listen":"test","script":{"exec":["const body = pm.response.json();","if (body.accessToken) pm.environment.set('accessToken', body.accessToken);"]}}]},
+      {"name":"Refresh token","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"},"url":"{{baseUrl}}/auth/refresh-token"}}
+    ]},
+    {"name":"Catalog","item":[
+      {"name":"List products","request":{"method":"GET","url":"{{baseUrl}}/products?page=0&size=20&sort=price,asc"}},
+      {"name":"Get product","request":{"method":"GET","url":"{{baseUrl}}/products/{{productId}}"}},
+      {"name":"Create product ADMIN","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{adminAccessToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Vestido Aurora\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"basePrice\": 189900,\n  \"variants\": [{\"sku\": \"AUR-M-ROSA\", \"size\": \"M\", \"color\": \"Rosa\", \"price\": 189900, \"stock\": 10}]\n}"},"url":"{{baseUrl}}/admin/products"}}
+    ]},
+    {"name":"Cart and orders","item":[
+      {"name":"Get cart","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/me/cart"}},
+      {"name":"Add cart item","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"variantId\": \"{{variantId}}\",\n  \"quantity\": 1\n}"},"url":"{{baseUrl}}/me/cart/items"}},
+      {"name":"Checkout","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"shippingAddress\": {\"line1\": \"Calle 1 # 2-3\", \"city\": \"Bogotá\", \"country\": \"CO\"},\n  \"paymentMethod\": \"PAYU\"\n}"},"url":"{{baseUrl}}/orders"}},
+      {"name":"My orders","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/me/orders"}}
+    ]},
+    {"name":"Style and admin","item":[
+      {"name":"Save questionnaire","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"bodyType\": \"RECTANGLE\",\n  \"skinTone\": \"WARM\",\n  \"heightRange\": \"160_169\",\n  \"stylePreferences\": [\"CASUAL\", \"ELEGANT\"],\n  \"consent\": true\n}"},"url":"{{baseUrl}}/me/style-questionnaire"}},
+      {"name":"My recommendations","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":"{{baseUrl}}/me/recommendations"}},
+      {"name":"Admin dashboard","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminAccessToken}}"}],"url":"{{baseUrl}}/admin/dashboard"}}
+    ]}
+  ]
+}

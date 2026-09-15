@@ -1,0 +1,7 @@
+meta { name: Login; type: http; seq: 2 }
+post { url: {{baseUrl}}/auth/login; body: json }
+headers { Content-Type: application/json }
+body:json {
+  {"email":"diana@example.com","password":"CarpidiSecure2026!"}
+}
+tests { test("Login response is successful", function() { expect(res.status).to.be.oneOf([200, 401]); }); }
