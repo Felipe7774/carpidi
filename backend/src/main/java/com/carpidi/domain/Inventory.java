@@ -1,3 +1,28 @@
 package com.carpidi.domain;
-import jakarta.persistence.*; import java.util.UUID;
-@Entity public class Inventory { @Id @GeneratedValue private UUID id; @OneToOne(optional=false) private ProductVariant variant; private int available; private int reserved; @Version private long version; protected Inventory(){} }
+
+import jakarta.persistence.*;
+import java.util.UUID;
+
+@Entity
+@Table(name = "inventory")
+public class Inventory {
+  @Id @GeneratedValue private UUID id;
+  @OneToOne(optional = false) @JoinColumn(name = "variant_id", unique = true)
+  private ProductVariant variant;
+  @Column(nullable = false) private int available;
+  @Column(nullable = false) private int reserved;
+  @Version private long version;
+
+  protected Inventory() {}
+
+  public Inventory(ProductVariant variant, int available) {
+    if (available < 0) throw new IllegalArgumentException("El inventario no puede ser negativo.");
+    this.variant = variant;
+    this.available = available;
+  }
+
+  public UUID getId() { return id; }
+  public int getAvailable() { return available; }
+  public int getReserved() { return reserved; }
+  public int getSellable() { return available - reserved; }
+}

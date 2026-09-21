@@ -22,6 +22,11 @@ public class GlobalExceptionHandler {
     return problem(HttpStatus.CONFLICT,"data-conflict","La operación entra en conflicto con datos existentes.",r);
   }
 
+  @ExceptionHandler(IllegalArgumentException.class)
+  ResponseEntity<ProblemDetail> badRequest(IllegalArgumentException e, HttpServletRequest r) {
+    return problem(HttpStatus.BAD_REQUEST,"invalid-request",e.getMessage(),r);
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   ResponseEntity<ProblemDetail> validation(MethodArgumentNotValidException e, HttpServletRequest r) {
     ProblemDetail detail=ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,"La solicitud contiene campos inválidos.");

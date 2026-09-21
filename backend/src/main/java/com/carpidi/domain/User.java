@@ -29,4 +29,5 @@ public class User {
   public String getPasswordHash(){return passwordHash;}
   public Set<UserRole> getRoles(){return Set.copyOf(roles);}
   public boolean isEnabled(){return enabled;}
+  public void grantRole(UserRole role) { roles.add(role); }
 }

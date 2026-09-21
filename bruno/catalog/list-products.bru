@@ -1,2 +1,3 @@
 meta { name: List products; type: http; seq: 3 }
-get { url: {{baseUrl}}/products?page=0&size=20&sort=price,asc }
+get { url: {{baseUrl}}/products?page=0&pageSize=20&category=ropa }
+tests { test("Catalog returns HTTP 200", function() { expect(res.status).to.equal(200); }); }

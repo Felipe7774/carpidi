@@ -63,3 +63,31 @@ Si el comando `setup add antigravity` no pudiera escribir en la configuración g
   }
 }
 ```
+
+## [2026-09-21 08:57:53 -05:00] - NotebookLM no tiene un perfil autenticado
+
+### Descripción del Error
+
+La verificación `nlm login --check` respondió `Profile not found: default`. Por esta razón, los servicios pueden construirse a partir de los requisitos versionados, pero todavía no pueden declararse validados contra las fuentes de NotebookLM.
+
+### Solución Aplicada
+
+Se detuvo la validación externa para no inventar evidencia. Debe ejecutarse manualmente `nlm login` en la terminal de Antigravity y completar el inicio de sesión de Google; después se debe repetir `nlm login --check` y consultar las fuentes antes de cerrar el servicio.
+
+### Prevención
+
+Incluir `nlm login --check` como verificación previa al inicio de cada sesión de validación arquitectónica.
+
+## [2026-09-21 08:57:53 -05:00] - Motor de Docker Desktop no disponible
+
+### Descripción del Error
+
+La validación del backend con contenedores no pudo iniciarse porque el cliente Docker no encontró `dockerDesktopLinuxEngine`. El archivo de Docker Compose sí superó la validación de configuración.
+
+### Solución Aplicada
+
+La compilación y las pruebas quedan como paso obligatorio en la terminal de Antigravity, donde debe iniciarse Docker Desktop o disponer de Java 21 y Maven antes de ejecutar `mvn test`.
+
+### Prevención
+
+Verificar el estado del motor con `docker version` antes de iniciar las pruebas y no declarar un servicio terminado mientras la compilación no haya finalizado correctamente.

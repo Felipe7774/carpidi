@@ -36,14 +36,13 @@ La primera versión del producto incluirá:
 
 ## Ejecutar en desarrollo
 
-1. Inicia PostgreSQL y la API con `docker compose up --build`.
-2. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
-3. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
+1. Copia `.env.example` como `.env` y asigna valores locales seguros.
+2. Inicia PostgreSQL y la API con `docker compose up --build`.
+3. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
+4. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
 
-Para usar PostgreSQL gestionado gratuito durante el MVP, consulta la [configuración de Supabase](docs/supabase.md).
-
-> Antes de desplegar, reemplaza las credenciales de desarrollo y el secreto JWT por variables seguras del entorno.
+En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediante Secret Manager y la cuenta de servicio de Cloud Run.
 
 ## Estado
 
-El repositorio está en fase de definición. El siguiente paso es elegir el diseño y la tecnología para construir el sitio web.
+Autenticación JWT y catálogo están en construcción sobre el monolito modular. Pedidos, recomendaciones y despliegue GCP continúan en las siguientes ramas funcionales.

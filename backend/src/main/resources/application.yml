@@ -2,9 +2,9 @@ spring:
   application:
     name: carpidi-api
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/carpidi}
-    username: ${SPRING_DATASOURCE_USERNAME:carpidi}
-    password: ${SPRING_DATASOURCE_PASSWORD:carpidi_dev}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:5}
       minimum-idle: 1
@@ -21,6 +21,12 @@ app:
   security:
     allowed-origins: ${APP_ALLOWED_ORIGINS:http://localhost:5173}
   jwt:
-    secret: ${APP_JWT_SECRET:change-this-development-secret-with-at-least-32-characters}
+    secret: ${APP_JWT_SECRET}
     access-ttl-minutes: 15
     refresh-ttl-days: 14
+  bootstrap:
+    admin:
+      enabled: ${APP_BOOTSTRAP_ADMIN_ENABLED:false}
+      name: ${APP_BOOTSTRAP_ADMIN_NAME:Administrador CARPIDI}
+      email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
