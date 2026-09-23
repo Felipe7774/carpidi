@@ -1,0 +1,3 @@
+meta { name: List orders; type: http; seq: 6 }
+get { url: {{baseUrl}}/orders; body: none }
+headers { Authorization: Bearer {{accessToken}} }

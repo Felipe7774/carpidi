@@ -16,22 +16,22 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
       join p.category c
       left join p.variants v
       where p.active = true and c.active = true
-        and (:query is null or lower(p.name) like lower(concat('%', :query, '%'))
+        and (:query = '' or lower(p.name) like lower(concat('%', :query, '%'))
           or lower(p.description) like lower(concat('%', :query, '%')))
-        and (:category is null or lower(c.slug) = lower(:category))
-        and (:size is null or lower(v.size) = lower(:size))
-        and (:color is null or lower(v.color) = lower(:color))
+        and (:category = '' or lower(c.slug) = lower(:category))
+        and (:size = '' or lower(v.size) = lower(:size))
+        and (:color = '' or lower(v.color) = lower(:color))
       """,
       countQuery = """
       select count(distinct p.id) from Product p
       join p.category c
       left join p.variants v
       where p.active = true and c.active = true
-        and (:query is null or lower(p.name) like lower(concat('%', :query, '%'))
+        and (:query = '' or lower(p.name) like lower(concat('%', :query, '%'))
           or lower(p.description) like lower(concat('%', :query, '%')))
-        and (:category is null or lower(c.slug) = lower(:category))
-        and (:size is null or lower(v.size) = lower(:size))
-        and (:color is null or lower(v.color) = lower(:color))
+        and (:category = '' or lower(c.slug) = lower(:category))
+        and (:size = '' or lower(v.size) = lower(:size))
+        and (:color = '' or lower(v.color) = lower(:color))
       """)
   Page<Product> searchActive(@Param("query") String query, @Param("category") String category,
       @Param("size") String size, @Param("color") String color, Pageable pageable);

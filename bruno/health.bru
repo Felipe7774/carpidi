@@ -1,0 +1,3 @@
+meta { name: Health check; type: http; seq: 1 }
+get { url: {{baseUrl}}/health }
+tests { test("API is healthy", function() { expect(res.status).to.equal(200); expect(res.body.status).to.equal("UP"); }); }

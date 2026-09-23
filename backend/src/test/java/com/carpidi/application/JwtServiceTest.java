@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class JwtServiceTest {
   @Test
   void createsSignedTokenWithUserSubjectAndRole() throws Exception {
-    Clock clock=Clock.fixed(Instant.parse("2026-09-14T12:00:00Z"),ZoneOffset.UTC);
+    Clock clock=Clock.fixed(Instant.parse("2030-09-14T12:00:00Z"),ZoneOffset.UTC);
     JwtService service=new JwtService("12345678901234567890123456789012",15,clock);
     User user=new User("Cliente CARPIDI","client@example.com","hash",UserRole.CLIENT);
     Field id=User.class.getDeclaredField("id"); id.setAccessible(true); id.set(user,UUID.fromString("37a5e945-6ad9-47ae-b989-64dbfd9a1e2c"));

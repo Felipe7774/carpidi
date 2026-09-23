@@ -25,4 +25,10 @@ public class Inventory {
   public int getAvailable() { return available; }
   public int getReserved() { return reserved; }
   public int getSellable() { return available - reserved; }
+
+  public void sell(int quantity) {
+    if (quantity < 1) throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+    if (getSellable() < quantity) throw new IllegalArgumentException("Stock insuficiente para la variante seleccionada.");
+    available -= quantity;
+  }
 }

@@ -1,3 +1,4 @@
 meta { name: Get recommendations; type: http; seq: 6 }
-get { url: {{baseUrl}}/me/recommendations }
+get { url: {{baseUrl}}/recommendations }
 headers { Authorization: Bearer {{accessToken}} }
+tests { test("Recommendations endpoint returns HTTP 200", function() { expect(res.status).to.equal(200); }); }

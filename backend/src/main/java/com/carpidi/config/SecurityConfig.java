@@ -50,7 +50,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'"))
             .frameOptions(frame -> frame.deny()).httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
-        .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**","/products/**","/categories/**","/actuator/health").permitAll()
+        .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**","/products/**","/categories/**","/health","/actuator/health").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
         .exceptionHandling(errors -> errors.authenticationEntryPoint(problems).accessDeniedHandler(problems))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();

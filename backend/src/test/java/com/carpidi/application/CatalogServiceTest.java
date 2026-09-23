@@ -31,10 +31,10 @@ class CatalogServiceTest {
 
   @Test
   void returnsOnlyRepositoryCatalogResults() {
-    when(products.searchActive(isNull(), isNull(), isNull(), isNull(), any()))
+    when(products.searchActive(eq(""), eq(""), eq(""), eq(""), any()))
         .thenReturn(new PageImpl<>(List.of()));
     assertThat(catalog.search(" ", null, null, null, 0, 20)).isEmpty();
-    verify(products).searchActive(isNull(), isNull(), isNull(), isNull(), any());
+    verify(products).searchActive(eq(""), eq(""), eq(""), eq(""), any());
   }
 
   @Test

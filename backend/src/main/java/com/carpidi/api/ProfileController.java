@@ -1,0 +1,3 @@
+package com.carpidi.api;
+import com.carpidi.infrastructure.UserRepository; import java.security.Principal; import java.util.Map; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.GetMapping; import org.springframework.web.bind.annotation.RestController;
+@RestController public class ProfileController { private final UserRepository users; public ProfileController(UserRepository users){this.users=users;} @GetMapping("/me") @PreAuthorize("isAuthenticated()") public Map<String,Object> me(Principal principal){var user=users.findByEmailIgnoreCase(principal.getName()).orElseThrow(); return Map.of("id",user.getId(),"name",user.getFullName(),"email",user.getEmail(),"roles",user.getRoles());} }

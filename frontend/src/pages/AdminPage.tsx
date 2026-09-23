@@ -1,0 +1,18 @@
+import { FormEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createProduct, deactivateProduct, getCategories, getProducts, Category, Product } from '../services/catalog';
+import { getOrders, Order } from '../services/orders';
+import { useAuth } from '../state/AuthContext';
+
+export function AdminPage() {
+  const { user } = useAuth(); const isAdmin = user?.roles.includes('ADMIN');
+  const [products,setProducts]=useState<Product[]>([]); const [categories,setCategories]=useState<Category[]>([]); const [orders,setOrders]=useState<Order[]>([]); const [error,setError]=useState('');
+  const [name,setName]=useState(''); const [slug,setSlug]=useState(''); const [categoryId,setCategoryId]=useState(''); const [price,setPrice]=useState('');
+  const load=()=>Promise.all([getProducts({}),getCategories(),getOrders()]).then(([p,c,o])=>{setProducts(p.content);setCategories(c);setCategoryId(current=>current||c[0]?.id||'');setOrders(o);});
+  useEffect(()=>{if(isAdmin) load().catch(()=>setError('No se pudo cargar el dashboard. Verifica los permisos de administrador.'));},[isAdmin]);
+  if(!user)return <section className="card"><h1>Panel administrativo</h1><p>Debes iniciar sesión.</p><Link className="button" to="/login">Ingresar</Link></section>;
+  if(!isAdmin)return <section className="card"><h1>Acceso restringido</h1><p>Esta sección solo está disponible para administradores.</p></section>;
+  async function submit(event:FormEvent){event.preventDefault();setError('');try{await createProduct({categoryId,slug,name,description:'Producto creado desde el panel administrativo.',basePrice:Number(price),active:true,variants:[{sku:`${slug}-unica`,size:'Única',color:'Único',price:Number(price),available:10}]});setName('');setSlug('');setPrice('');await load();}catch{setError('No se pudo crear el producto. Revisa el slug y el precio.');}}
+  async function remove(id:string){if(!window.confirm('¿Desactivar este producto?'))return;try{await deactivateProduct(id);await load();}catch{setError('No se pudo desactivar el producto.');}}
+  return <section><div className="card"><h1>Panel administrativo</h1><p>Resumen operativo de CARPIDI.</p><div className="stats"><div><strong>{products.length}</strong><span>Productos activos</span></div><div><strong>{orders.length}</strong><span>Pedidos registrados</span></div><div><strong>${orders.reduce((sum,o)=>sum+o.total,0).toLocaleString('es-CO')}</strong><span>Ventas acumuladas</span></div></div>{error&&<p className="error">{error}</p>}</div><div className="card"><h2>Crear producto</h2><form className="form" onSubmit={submit}><input required placeholder="Nombre" value={name} onChange={e=>setName(e.target.value)}/><input required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="slug-ejemplo" value={slug} onChange={e=>setSlug(e.target.value)}/><select required value={categoryId} onChange={e=>setCategoryId(e.target.value)}><option value="">Categoría</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select><input required min="0.01" step="0.01" type="number" placeholder="Precio" value={price} onChange={e=>setPrice(e.target.value)}/><button>Crear producto</button></form></div><div className="card"><h2>Productos</h2><div className="table-wrap"><table><thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Acción</th></tr></thead><tbody>{products.map(p=><tr key={p.id}><td>{p.name}</td><td>{p.category.name}</td><td>${p.basePrice.toLocaleString('es-CO')}</td><td><button className="secondary" onClick={()=>remove(p.id)}>Desactivar</button></td></tr>)}</tbody></table></div></div></section>;
+}

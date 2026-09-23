@@ -1,0 +1,4 @@
+meta { name: Get authenticated profile; type: http; seq: 4 }
+get { url: {{baseUrl}}/me }
+headers { Authorization: Bearer {{accessToken}} }
+tests { test("Profile returns HTTP 200", function() { expect(res.status).to.equal(200); }); }

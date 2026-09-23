@@ -29,6 +29,7 @@ public class ProductVariant {
   void assignTo(Product product) { this.product = product; }
 
   public UUID getId() { return id; }
+  public Product getProduct() { return product; }
   public String getSku() { return sku; }
   public String getSize() { return size; }
   public String getColor() { return color; }

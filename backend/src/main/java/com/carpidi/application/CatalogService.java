@@ -30,7 +30,7 @@ public class CatalogService {
       throw new IllegalArgumentException("El tamaño de página debe estar entre 1 y 100.");
     }
     Pageable pageable = PageRequest.of(page, pageSize, Sort.by("name").ascending());
-    return products.searchActive(clean(query), clean(category), clean(size), clean(color), pageable)
+    return products.searchActive(cleanFilter(query), cleanFilter(category), cleanFilter(size), cleanFilter(color), pageable)
         .map(this::toView);
   }
 
@@ -127,6 +127,10 @@ public class CatalogService {
 
   private static String clean(String value) {
     return value == null || value.isBlank() ? null : value.trim();
+  }
+
+  private static String cleanFilter(String value) {
+    return value == null || value.isBlank() ? "" : value.trim();
   }
 
   private static String normalizeSlug(String slug) {

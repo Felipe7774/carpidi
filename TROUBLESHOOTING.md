@@ -91,3 +91,90 @@ La compilación y las pruebas quedan como paso obligatorio en la terminal de Ant
 ### Prevención
 
 Verificar el estado del motor con `docker version` antes de iniciar las pruebas y no declarar un servicio terminado mientras la compilación no haya finalizado correctamente.
+
+## [2026-09-21 09:45:00 -05:00] - Distribución `docker-desktop` de WSL iniciada sin API Docker disponible
+
+### Descripción del Error
+
+Docker Desktop aparece abierto y WSL 2 está instalado, pero `docker compose up` no puede conectarse al endpoint `npipe:////./pipe/dockerDesktopLinuxEngine`. La distribución `docker-desktop` inicialmente estaba detenida; al iniciarla manualmente pasó a `Running`, pero el socket/API del motor todavía no está disponible.
+
+### Estado y Solución Aplicada
+
+Se inició Docker Desktop, se activó el contexto `desktop-linux` y se validó que `docker compose config` es correcto. No se levantaron contenedores ni se alteraron volúmenes porque el daemon aún no responde. El siguiente paso seguro es reiniciar Docker Desktop desde su interfaz y comprobar `docker version`; después se puede ejecutar `docker compose up --build`.
+
+### Prevención
+
+Comprobar que `docker version` muestre una sección `Server` antes de ejecutar Compose. Si solo aparece `Client` o falta `dockerDesktopLinuxEngine`, esperar a que Docker Desktop termine de iniciar o revisar el estado de WSL sin eliminar la distribución ni sus datos.
+
+## [2026-09-21 10:05:00 -05:00] - Fallos de compilación y pruebas del backend en Docker
+
+### Descripción del Error
+
+La imagen del backend encontró varios bloqueos durante `mvn package`: un paso redundante de descarga de dependencias alargaba la compilación, había imports ambiguos o ausentes, dos cuerpos JSON estaban escritos con delimitadores de text block inválidos, el test JWT usaba una fecha fija ya expirada y el test MVC necesitaba dependencias del filtro JWT para crear su contexto.
+
+### Solución Aplicada
+
+Se eliminó el paso redundante `dependency:go-offline` del Dockerfile, se corrigieron los imports, se reemplazaron los cuerpos JSON por cadenas Java válidas, se movió el reloj fijo del test JWT a una fecha futura y se añadieron mocks de `JwtService` y `UserRepository` al test del controlador. Después de un reintento por una intermitencia de Maven Central, `docker compose build api` finalizó correctamente.
+
+### Prevención
+
+Mantener los tests deterministas usando fechas futuras o relojes inyectables, aislar las pruebas MVC de infraestructura no relevante y conservar el Dockerfile con el mínimo de pasos necesarios.
+
+## [2026-09-21 10:15:00 -05:00] - Filtros de productos con parámetros nulos en PostgreSQL
+
+### Descripción del Error
+
+La consulta de catálogo devolvía un error `function lower(bytea) does not exist` cuando los filtros opcionales se enviaban vacíos. PostgreSQL no podía inferir el tipo de los parámetros nulos usados en las expresiones `:param is null`.
+
+### Solución Aplicada
+
+Los filtros del catálogo ahora se normalizan a cadena vacía antes de consultar y la consulta JPQL usa `:param = ''` como condición de filtro desactivado. Se reconstruyó la imagen y `GET /api/v1/products` respondió `200`.
+
+### Prevención
+
+Probar siempre los endpoints con todos los filtros opcionales ausentes y evitar expresiones SQL que dejen parámetros nulos sin tipo cuando el motor requiere inferencia explícita.
+
+## [2026-09-21 10:25:00 -05:00] - TypeScript no reconocía Vite ni importaciones CSS
+
+### Descripción del Error
+
+Al validar el frontend con `npm run build`, TypeScript no encontraba las declaraciones para la importación de `styles.css` ni para `ImportMeta.env`, que se usa para configurar la URL de la API.
+
+### Solución Aplicada
+
+Se añadió `frontend/src/vite-env.d.ts` con las definiciones oficiales de Vite. El build de producción finalizó correctamente y se verificó la comunicación CORS desde `http://127.0.0.1:5173` hacia la API local.
+
+### Prevención
+
+Conservar las declaraciones de entorno de Vite como parte del código fuente y ejecutar `npm run build` antes de validar cambios del frontend.
+
+## [2026-09-21 10:40:00 -05:00] - Bootstrap de ADMIN rechazado por política de contraseña
+
+### Descripción del Error
+
+Al habilitar el bootstrap del administrador para cargar productos, el backend detuvo el arranque porque la contraseña local configurada no cumplía la política mínima: 12 a 72 caracteres con mayúscula, minúscula, número y símbolo.
+
+### Solución Aplicada
+
+Se deshabilitó nuevamente el bootstrap para conservar la disponibilidad de la API. En la base local de Docker se otorgó el rol `ADMIN` a la cuenta de prueba ya registrada y, usando el endpoint protegido, se publicaron tres productos iniciales. No se modificaron ni expusieron secretos en archivos versionados.
+
+### Prevención
+
+Antes de habilitar el bootstrap, validar las variables locales de administrador contra la política de contraseña. En GCP, el administrador inicial debe obtenerse desde Secret Manager y no desde valores versionados.
+## 2026-09-23 00:00 - Error de compilación TypeScript en carrito
+
+**Descripción del error:** `npm run build` falló porque las variantes del catálogo permiten `size` y `color` como `null`, mientras que el estado del carrito espera valores opcionales `string | undefined`.
+
+**Solución aplicada:** Se normalizaron `size` y `color` con `?? undefined` al agregar productos al carrito, manteniendo el contrato del estado interno sin cambiar la respuesta de la API.
+
+## 2026-09-23 00:00 - Maven no disponible en PowerShell
+
+**Descripción del error:** La ejecución local de `mvn test` falló porque el comando `mvn` no está disponible en el PATH de PowerShell y el proyecto no incluye Maven Wrapper.
+
+**Solución aplicada:** La verificación Java se realizará con el build Docker del servicio API, que usa la imagen `maven:3.9-eclipse-temurin-21` definida en el `Dockerfile`.
+
+## 2026-09-23 00:00 - Credenciales demo en ambientes de API
+
+**Descripción del error:** Los ambientes locales de Bruno/Postman tenían una contraseña demo escrita como valor de variable, lo que contradice la regla de cero credenciales del agente.
+
+**Solución aplicada:** Se reemplazaron esos valores por placeholders locales (`CAMBIAR_EN_BRUNO_LOCAL` y `CAMBIAR_EN_POSTMAN_LOCAL`). Las contraseñas reales deben configurarse solo en el cliente local de pruebas, no versionarse.
