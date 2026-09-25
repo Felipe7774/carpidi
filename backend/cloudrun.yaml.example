@@ -15,7 +15,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://localhost:5432/carpidi?socketFactory=com.google.cloud.sql.postgres.SocketFactory
+              value: jdbc:postgresql:///carpidi?cloudSqlInstance=PROJECT_ID:REGION:INSTANCE_NAME&socketFactory=com.google.cloud.sql.postgres.SocketFactory
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:

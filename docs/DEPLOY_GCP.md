@@ -43,3 +43,12 @@ Antes de compilar la versión pública, crear `frontend/.env.production` a parti
 ## Evidencia
 
 Guardar en Postman/Bruno la URL pública, pruebas `200` de `/health`, autenticación, catálogo y pedidos, además de un caso `401` sin token. Nunca incluir tokens, contraseñas o claves en las capturas.
+
+## Despliegue de demostración
+
+- Proyecto GCP: `project-0b03e6ab-52a0-466a-a54`.
+- API Cloud Run: `https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1`.
+- Verificación: `GET /health` respondió `200` con `status: UP`.
+- Frontend público: `https://carpidi-web.carlosgcb74.chatgpt.site`.
+
+Cloud Run utiliza una cuenta de servicio exclusiva, Secret Manager para las credenciales y Cloud SQL PostgreSQL mediante Cloud SQL Connector. La instancia se configura con escala mínima de cero para reducir costos cuando no hay solicitudes.

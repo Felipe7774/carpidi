@@ -178,3 +178,67 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Descripción del error:** Los ambientes locales de Bruno/Postman tenían una contraseña demo escrita como valor de variable, lo que contradice la regla de cero credenciales del agente.
 
 **Solución aplicada:** Se reemplazaron esos valores por placeholders locales (`CAMBIAR_EN_BRUNO_LOCAL` y `CAMBIAR_EN_POSTMAN_LOCAL`). Las contraseñas reales deben configurarse solo en el cliente local de pruebas, no versionarse.
+
+## 2026-09-25 00:00 - Cloud SQL rechazó el tier de desarrollo
+
+**Descripción del error:** La creación de la instancia PostgreSQL con el tier `db-f1-micro` fue rechazada porque GCP asumió la edición `enterprise-plus`, que no permite tiers compartidos.
+
+**Solución aplicada:** Se configuró explícitamente la edición `enterprise`, compatible con `db-f1-micro`, antes de reintentar la creación.
+
+**Prevención:** Declarar siempre `--edition=enterprise` cuando el entorno académico use un tier compartido de Cloud SQL.
+
+## 2026-09-25 00:00 - Lectura de secretos contaminada por aviso local de gcloud
+
+**Descripción del error:** El lanzador portable de Google Cloud CLI emitió un aviso local de Python junto con el valor obtenido desde Secret Manager. PowerShell interpretó ambas líneas como la contraseña, por lo que PostgreSQL rechazó la autenticación administrativa.
+
+**Solución aplicada:** Se filtra explícitamente la última línea devuelta por `gcloud secrets versions access` antes de usarla como contraseña. Las contraseñas se rotan y se vuelve a retirar toda red autorizada temporal antes de reintentar.
+
+**Prevención:** No usar directamente la salida completa de un CLI como secreto; normalizarla y verificar que no incluya mensajes del entorno.
+
+## 2026-09-25 00:00 - Cambio de propietario restringido en Cloud SQL PostgreSQL
+
+**Descripción del error:** PostgreSQL rechazó `ALTER DATABASE ... OWNER TO carpidi_app` porque el rol administrador administrado por Cloud SQL no puede ejecutar `SET ROLE` hacia el usuario de aplicación.
+
+**Solución aplicada:** Se reemplaza el cambio de propiedad por privilegios explícitos mínimos sobre la base y el esquema `public`, suficientes para las migraciones Flyway.
+
+**Prevención:** En Cloud SQL usar privilegios SQL explícitos para las cuentas de aplicación; no depender de cambios de propietario entre roles administrados.
+
+## 2026-09-25 00:00 - Escape incorrecto de comando meta de psql
+
+**Descripción del error:** El uso de `\\connect` en PowerShell produjo dos barras invertidas para `psql`, que respondió `invalid command` y no ejecutó la concesión del esquema.
+
+**Solución aplicada:** Se elimina el comando meta y se abre una segunda conexión directa a la base `carpidi` para ejecutar el `GRANT` del esquema.
+
+**Prevención:** Para automatizaciones multiplataforma, preferir conexiones explícitas por base sobre comandos meta interactivos de `psql`.
+
+## 2026-09-25 00:00 - Cloud Build sin acceso al artefacto fuente
+
+**Descripción del error:** `gcloud builds submit` subió el archivo fuente al bucket de Cloud Build, pero la cuenta de cómputo predeterminada no tenía `storage.objects.get` y la compilación fue rechazada con HTTP 403.
+
+**Solución aplicada:** Se concede a esa cuenta solamente el rol `roles/storage.objectViewer` para que Cloud Build pueda leer los archivos fuente del proyecto.
+
+**Prevención:** Validar las cuentas de servicio efectivas de Cloud Build e incluir el permiso mínimo de lectura del bucket de fuentes en proyectos GCP nuevos.
+
+## 2026-09-25 00:00 - Cloud Build sin permiso para publicar en Artifact Registry
+
+**Descripción del error:** La imagen de CARPIDI compiló y superó las pruebas, pero Cloud Build no pudo subirla al repositorio `carpidi` por falta de `artifactregistry.repositories.uploadArtifacts`.
+
+**Solución aplicada:** Se asigna a la cuenta de compilación el rol `roles/artifactregistry.writer`, limitado al proyecto que contiene el repositorio de CARPIDI.
+
+**Prevención:** Al crear un repositorio Artifact Registry nuevo, conceder a la cuenta efectiva de Cloud Build permisos de escritura antes de lanzar la primera compilación.
+
+## 2026-09-25 00:00 - Variables de Cloud Run incompletas en el primer despliegue
+
+**Descripción del error:** La primera revisión no recibió `APP_JWT_SECRET` y la URL JDBC quedó truncada antes de `socketFactory`, por lo que Spring Boot no pudo iniciar.
+
+**Solución aplicada:** Se actualiza la revisión con secretos de Secret Manager y un delimitador explícito para las variables de entorno, preservando el carácter `&` de la URL JDBC.
+
+**Prevención:** Para valores de variables que contienen caracteres reservados, usar un delimitador alternativo de `gcloud` en lugar de la sintaxis separada por comas.
+
+## 2026-09-25 00:00 - Saltos de línea en secretos inyectados en Cloud Run
+
+**Descripción del error:** Los secretos creados desde PowerShell mediante una tubería contenían un salto de línea final. Cloud Run inyectó ese carácter en el usuario y contraseña de PostgreSQL, que rechazó la autenticación.
+
+**Solución aplicada:** Se generan versiones nuevas de los secretos con archivos temporales UTF-8 sin salto de línea y se rota la contraseña del usuario de aplicación para que coincida exactamente.
+
+**Prevención:** Para secretos que se comparan byte a byte, evitar la salida de consola como fuente de datos y usar una escritura explícita sin terminador de línea.
