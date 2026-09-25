@@ -1,0 +1,9 @@
+meta { name: Reject invalid checkout; type: http; seq: 6 }
+post { url: {{baseUrl}}/orders; body: json }
+headers { Authorization: Bearer {{accessToken}}; Content-Type: application/json }
+body:json {
+  {"items": [], "paymentMethod": "", "shippingAddress": {"line1": "", "city": "", "country": ""}}
+}
+tests {
+  test("Invalid checkout returns controlled HTTP 400", function() { expect(res.status).to.equal(400); });
+}

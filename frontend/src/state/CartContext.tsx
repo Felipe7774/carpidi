@@ -8,6 +8,7 @@ export type CartItem = {
   size?: string;
   color?: string;
   price: number;
+  available: number;
   quantity: number;
 };
 
@@ -25,7 +26,11 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 const loadCart = () => {
   const raw = localStorage.getItem('cartItems');
-  return raw ? JSON.parse(raw) as CartItem[] : [];
+  if (!raw) return [];
+  return (JSON.parse(raw) as Array<Omit<CartItem, 'available'> & { available?: number }>).map(item => ({
+    ...item,
+    available: typeof item.available === 'number' ? item.available : Math.max(item.quantity, 1),
+  }));
 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -54,13 +59,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
           size: variant.size ?? undefined,
           color: variant.color ?? undefined,
           price: variant.price,
+          available: variant.available,
           quantity: 1,
         }];
       });
     },
     updateQuantity(variantId, quantity) {
       setItems(current => current.map(item => item.variantId === variantId
-        ? { ...item, quantity: Math.max(1, quantity) }
+        ? { ...item, quantity: Math.min(item.available, Math.max(1, quantity)) }
         : item));
     },
     removeItem(variantId) {

@@ -1,3 +1,6 @@
 meta { name: List orders; type: http; seq: 6 }
 get { url: {{baseUrl}}/orders; body: none }
 headers { Authorization: Bearer {{accessToken}} }
+tests {
+  test("Order history returns HTTP 200", function() { expect(res.status).to.equal(200); });
+}

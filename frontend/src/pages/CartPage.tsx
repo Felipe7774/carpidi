@@ -52,7 +52,7 @@ export function CartPage() {
             <p>{item.size ?? 'Única'} · {item.color ?? 'Sin color'} · {money.format(item.price)}</p>
           </div>
           <label>Cantidad
-            <input type="number" min="1" value={item.quantity}
+            <input type="number" min="1" max={item.available} value={item.quantity}
               onChange={event => updateQuantity(item.variantId, Number(event.target.value))} />
           </label>
           <button type="button" className="secondary" onClick={() => removeItem(item.variantId)}>Quitar</button>
