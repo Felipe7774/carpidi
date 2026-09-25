@@ -250,3 +250,19 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Se envió una solicitud con método de pago demostrativo y dirección de envío completa. El pedido se creó con estado `PENDING_PAYMENT`.
 
 **Prevención:** Mantener en Postman y Bruno el cuerpo completo del checkout, incluyendo artículos, método de pago y dirección.
+
+## 2026-09-25 00:00 - Consulta de roles con cuenta administrativa de Cloud SQL
+
+**Descripción del error:** La cuenta administrada `postgres` de Cloud SQL no tenía permisos `SELECT` sobre la tabla `users`, que pertenece al usuario de aplicación.
+
+**Solución aplicada:** La verificación y asignación del rol se ejecutaron con `carpidi_app`, propietario de las tablas de CARPIDI. Se confirmó el rol `ADMIN` y se retiró la red temporal autorizada.
+
+**Prevención:** Ejecutar operaciones sobre tablas de la aplicación con el usuario propietario, y reservar la cuenta administrativa para tareas de instancia.
+
+## 2026-09-25 00:00 - Ejecución directa del script gcloud.ps1
+
+**Descripción del error:** El lector de secretos intentó iniciar `gcloud.ps1` mediante `ProcessStartInfo`, que Windows no puede ejecutar como binario directo.
+
+**Solución aplicada:** Se usó `gcloud.cmd` para la lectura programática de Secret Manager y `gcloud.ps1` solamente desde PowerShell.
+
+**Prevención:** Elegir el lanzador de GCP según el contexto de ejecución: `.cmd` para procesos hijos y `.ps1` para invocaciones desde PowerShell.
