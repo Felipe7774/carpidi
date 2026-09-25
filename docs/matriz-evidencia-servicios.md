@@ -14,3 +14,7 @@
 | Administración | POST/DELETE | `/api/v1/products` | 201/204 | 403 sin rol ADMIN | Bruno |
 
 Para la demostración, ejecutar primero Health, luego Register/Login y conservar el token únicamente dentro del entorno local de Postman o Bruno. No incluir tokens en capturas ni subirlos a GitHub.
+
+## Validación pública ejecutada
+
+El 25 de septiembre de 2026 se validó la API desplegada en Cloud Run con datos reales de Cloud SQL, sin registrar credenciales ni tokens: registro `201`, inicio de sesión `200`, cuestionario `201`, recomendaciones con seis resultados y consulta de pedidos sin token `401`. El catálogo público respondió `200` con seis productos.
