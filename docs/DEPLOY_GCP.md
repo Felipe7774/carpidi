@@ -34,6 +34,10 @@ Crear cada secreto desde un entorno seguro y conceder `roles/secretmanager.secre
 
 Configurar `SPRING_DATASOURCE_URL`, usuario, contraseña y `JWT_SECRET` mediante referencias a Secret Manager. Ajustar `APP_ALLOWED_ORIGINS` al dominio del frontend. Validar `GET /api/v1/health` y la respuesta `status=UP`.
 
+## Conectar el frontend publicado
+
+Antes de compilar la versión pública, crear `frontend/.env.production` a partir de `frontend/.env.production.example` y asignar la URL real de Cloud Run en `VITE_API_URL`. Después ejecutar `npm run build` dentro de `frontend` y publicar una nueva versión del sitio. No usar `localhost` en producción.
+
 ## Evidencia
 
 Guardar en Postman/Bruno la URL pública, pruebas `200` de `/health`, autenticación, catálogo y pedidos, además de un caso `401` sin token. Nunca incluir tokens, contraseñas o claves en las capturas.

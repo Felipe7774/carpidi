@@ -16,3 +16,6 @@ coverage/
 .DS_Store
 Thumbs.db
 *.log
+carpidi-site.zip
+carpidi-site.tar.gz
+.sites-archive-temp-*/
