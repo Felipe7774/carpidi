@@ -26,6 +26,8 @@ docker build -t us-central1-docker.pkg.dev/PROJECT_ID/carpidi/api:latest ./backe
 docker push us-central1-docker.pkg.dev/PROJECT_ID/carpidi/api:latest
 ```
 
+También puedes usar `backend/cloudrun.yaml.example` como base y ejecutar `scripts/deploy-gcp.ps1` después de autenticar `gcloud`. El manifiesto es una plantilla: reemplaza proyecto, región, instancia y cuenta de servicio sin guardar secretos.
+
 ## Secretos
 
 Crear cada secreto desde un entorno seguro y conceder `roles/secretmanager.secretAccessor` únicamente a la cuenta de servicio de Cloud Run. No usar valores reales en comandos compartidos, capturas ni commits.

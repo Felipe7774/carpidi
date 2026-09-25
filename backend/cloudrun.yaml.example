@@ -1,0 +1,35 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: carpidi-api
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/cloudsql-instances: PROJECT_ID:REGION:INSTANCE_NAME
+    spec:
+      serviceAccountName: carpidi-api-runner@PROJECT_ID.iam.gserviceaccount.com
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/carpidi/api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://localhost:5432/carpidi?socketFactory=com.google.cloud.sql.postgres.SocketFactory
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: DB_USERNAME
+                  key: latest
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PASSWORD
+                  key: latest
+            - name: APP_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: latest
+            - name: APP_ALLOWED_ORIGINS
+              value: https://carpidi-web.carlosgcb74.chatgpt.site
