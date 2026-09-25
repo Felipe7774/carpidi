@@ -18,3 +18,5 @@ Para la demostración, ejecutar primero Health, luego Register/Login y conservar
 ## Validación pública ejecutada
 
 El 25 de septiembre de 2026 se validó la API desplegada en Cloud Run con datos reales de Cloud SQL, sin registrar credenciales ni tokens: registro `201`, inicio de sesión `200`, cuestionario `201`, recomendaciones con seis resultados y consulta de pedidos sin token `401`. El catálogo público respondió `200` con seis productos.
+
+También se validó el checkout completo: la primera solicitud incompleta devolvió `400` y una solicitud con dirección y método de pago obtuvo `201`, creó un pedido `PENDING_PAYMENT` por `$189.900` y lo mostró en el historial del cliente.

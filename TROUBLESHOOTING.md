@@ -242,3 +242,11 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Se generan versiones nuevas de los secretos con archivos temporales UTF-8 sin salto de línea y se rota la contraseña del usuario de aplicación para que coincida exactamente.
 
 **Prevención:** Para secretos que se comparan byte a byte, evitar la salida de consola como fuente de datos y usar una escritura explícita sin terminador de línea.
+
+## 2026-09-25 00:00 - Checkout rechazado por datos de entrega incompletos
+
+**Descripción del error:** La primera prueba de `POST /orders` respondió `400` porque no incluía `paymentMethod` ni `shippingAddress`.
+
+**Solución aplicada:** Se envió una solicitud con método de pago demostrativo y dirección de envío completa. El pedido se creó con estado `PENDING_PAYMENT`.
+
+**Prevención:** Mantener en Postman y Bruno el cuerpo completo del checkout, incluyendo artículos, método de pago y dirección.
