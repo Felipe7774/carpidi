@@ -32,6 +32,9 @@ La primera versión del producto incluirá:
 - [Diseño de APIs REST](docs/api.md)
 - [Modelo relacional](docs/modelo-datos.md)
 - [Historias de usuario](docs/historias-usuario.md)
+- [Matriz y guía de pruebas](docs/matriz-evidencia-servicios.md)
+- [Evidencia de validación pública](docs/evidencia-validacion-2026-09-26.md)
+- [Guion de demostración](docs/guion-demostracion.md)
 - Diagramas C4 y UML en `docs/diagramas/` (PlantUML).
 
 ## Ejecutar en desarrollo
@@ -45,4 +48,4 @@ En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediant
 
 ## Estado
 
-Autenticación JWT y catálogo están en construcción sobre el monolito modular. Pedidos, recomendaciones y despliegue GCP continúan en las siguientes ramas funcionales.
+MVP desplegado: autenticación JWT, catálogo, carrito, checkout con descuento de inventario, historial de pedidos, cuestionario/recomendaciones y panel ADMIN para productos e inventario. La integración con una pasarela de pago real, seguimiento de envíos y recomendaciones con IA quedan como evolución posterior.

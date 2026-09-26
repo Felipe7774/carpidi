@@ -266,3 +266,11 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Se usó `gcloud.cmd` para la lectura programática de Secret Manager y `gcloud.ps1` solamente desde PowerShell.
 
 **Prevención:** Elegir el lanzador de GCP según el contexto de ejecución: `.cmd` para procesos hijos y `.ps1` para invocaciones desde PowerShell.
+
+## 2026-09-26 14:35:18 -05:00 - Navegador integrado bloqueó el sitio público
+
+**Descripción del error:** Al abrir el frontend público desde el navegador integrado para capturar evidencia visual, la navegación fue rechazada con `net::ERR_BLOCKED_BY_CLIENT`.
+
+**Solución aplicada:** Se mantuvo la URL pública sin modificaciones y se realizó la validación mediante solicitudes HTTPS directas contra Cloud Run. La evidencia documenta códigos HTTP reales, flujo de checkout e inventario antes/después, sin revelar tokens o credenciales.
+
+**Prevención:** Conservar evidencia reproducible en Bruno/Postman y en documentos versionados; una restricción de extensión o navegador no debe ser la única fuente de validación del proyecto.
