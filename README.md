@@ -46,6 +46,13 @@ La primera versión del producto incluirá:
 
 En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediante Secret Manager y la cuenta de servicio de Cloud Run.
 
+## Enlaces de demostración
+
+- **Frontend público:** [CARPIDI Web](https://carpidi-web.carlosgcb74.chatgpt.site)
+- **API pública (salud):** [Cloud Run /api/v1/health](https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1/health)
+
+El frontend se conecta a la API desplegada; no requiere Docker ni un servidor local para la demostración.
+
 ## Estado
 
 MVP desplegado: autenticación JWT, catálogo, carrito, checkout con descuento de inventario, historial de pedidos, cuestionario/recomendaciones y panel ADMIN para productos e inventario. La integración con una pasarela de pago real, seguimiento de envíos y recomendaciones con IA quedan como evolución posterior.
