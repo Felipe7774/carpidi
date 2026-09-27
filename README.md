@@ -32,16 +32,27 @@ La primera versión del producto incluirá:
 - [Diseño de APIs REST](docs/api.md)
 - [Modelo relacional](docs/modelo-datos.md)
 - [Historias de usuario](docs/historias-usuario.md)
+- [Matriz y guía de pruebas](docs/matriz-evidencia-servicios.md)
+- [Evidencia de validación pública](docs/evidencia-validacion-2026-09-26.md)
+- [Guion de demostración](docs/guion-demostracion.md)
 - Diagramas C4 y UML en `docs/diagramas/` (PlantUML).
 
 ## Ejecutar en desarrollo
 
-1. Inicia PostgreSQL y la API con `docker compose up --build`.
-2. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
-3. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
+1. Copia `.env.example` como `.env` y asigna valores locales seguros.
+2. Inicia PostgreSQL y la API con `docker compose up --build`.
+3. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
+4. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
 
-> Antes de desplegar, reemplaza las credenciales de desarrollo y el secreto JWT por variables seguras del entorno.
+En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediante Secret Manager y la cuenta de servicio de Cloud Run.
+
+## Enlaces de demostración
+
+- **Frontend público:** [CARPIDI Web](https://carpidi-web.carlosgcb74.chatgpt.site)
+- **API pública (salud):** [Cloud Run /api/v1/health](https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1/health)
+
+El frontend se conecta a la API desplegada; no requiere Docker ni un servidor local para la demostración.
 
 ## Estado
 
-El repositorio está en fase de definición. El siguiente paso es elegir el diseño y la tecnología para construir el sitio web.
+MVP desplegado: autenticación JWT, catálogo, carrito, checkout con descuento de inventario, historial de pedidos, cuestionario/recomendaciones y panel ADMIN para productos e inventario. La integración con una pasarela de pago real, seguimiento de envíos y recomendaciones con IA quedan como evolución posterior.

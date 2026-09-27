@@ -1,0 +1,6 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getOrders, Order } from '../services/orders';
+import { useAuth } from '../state/AuthContext';
+
+export function OrdersPage() { const { user } = useAuth(); const [orders,setOrders]=useState<Order[]>([]); const [error,setError]=useState(''); useEffect(()=>{if(user)getOrders().then(setOrders).catch(()=>setError('No se pudo cargar tu historial.'));},[user]); if(!user)return <section className="card"><h1>Mis pedidos</h1><p>Ingresa para consultar tus compras.</p><Link className="button" to="/login">Ingresar</Link></section>; return <section><div className="card"><h1>Mis pedidos</h1><p>Consulta el estado y detalle de tus compras.</p>{error&&<p className="error">{error}</p>}{!orders.length&&!error&&<p className="empty">Aún no tienes pedidos.</p>}{orders.map(order=><article className="order-card" key={order.id}><div><strong>Pedido {order.id.slice(0,8)}</strong><span>{new Date(order.createdAt).toLocaleString('es-CO')}</span></div><div><span>Estado: {order.status}</span><strong>${order.total.toLocaleString('es-CO')}</strong></div><ul>{order.items.map(item=><li key={item.variantId}>{item.productName} × {item.quantity}</li>)}</ul></article>)}</div></section>; }

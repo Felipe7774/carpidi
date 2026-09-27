@@ -3,12 +3,12 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: carpidi
-      POSTGRES_USER: carpidi
-      POSTGRES_PASSWORD: carpidi_dev
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:?Define SPRING_DATASOURCE_USERNAME en .env}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?Define SPRING_DATASOURCE_PASSWORD en .env}
     ports: ["5432:5432"]
     volumes: [postgres_data:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U carpidi -d carpidi"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d carpidi"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -16,9 +16,15 @@ services:
     build: ./backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/carpidi
-      SPRING_DATASOURCE_USERNAME: carpidi
-      SPRING_DATASOURCE_PASSWORD: carpidi_dev
-      APP_JWT_SECRET: change-this-development-secret-with-at-least-32-characters
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:?Define SPRING_DATASOURCE_USERNAME en .env}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?Define SPRING_DATASOURCE_PASSWORD en .env}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?Define APP_JWT_SECRET en .env}
+      APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS:-http://localhost:5173}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-5}
+      APP_BOOTSTRAP_ADMIN_ENABLED: ${APP_BOOTSTRAP_ADMIN_ENABLED:-false}
+      APP_BOOTSTRAP_ADMIN_NAME: ${APP_BOOTSTRAP_ADMIN_NAME:-Administrador CARPIDI}
+      APP_BOOTSTRAP_ADMIN_EMAIL: ${APP_BOOTSTRAP_ADMIN_EMAIL:-}
+      APP_BOOTSTRAP_ADMIN_PASSWORD: ${APP_BOOTSTRAP_ADMIN_PASSWORD:-}
     ports: ["8080:8080"]
     depends_on:
       postgres:

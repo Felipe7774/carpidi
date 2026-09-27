@@ -2,5 +2,26 @@ meta { name: Checkout; type: http; seq: 5 }
 post { url: {{baseUrl}}/orders; body: json }
 headers { Authorization: Bearer {{accessToken}}; Content-Type: application/json }
 body:json {
-  {"shippingAddress":{"line1":"Calle 1 # 2-3","city":"Bogotá","country":"CO"},"paymentMethod":"PAYU"}
+  {
+    "items": [
+      {
+        "variantId": "{{variantId}}",
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "line1": "Calle 1 # 2-3",
+      "city": "Bogota",
+      "country": "Colombia"
+    },
+    "paymentMethod": "MANUAL_TEST"
+  }
+}
+tests {
+  test("Checkout creates an order", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body.id).to.be.a("string");
+    expect(res.body.status).to.equal("PENDING_PAYMENT");
+    bru.setEnvVar("orderId", res.body.id);
+  });
 }

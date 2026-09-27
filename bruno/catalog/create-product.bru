@@ -1,0 +1,18 @@
+meta { name: Create product as ADMIN; type: http; seq: 4 }
+post { url: {{baseUrl}}/products; body: json; auth: bearer }
+auth:bearer { token: {{adminAccessToken}} }
+headers { Content-Type: application/json }
+body:json {
+  {
+    "categoryId": "10000000-0000-0000-0000-000000000001",
+    "slug": "vestido-midi-negro",
+    "name": "Vestido midi negro",
+    "description": "Vestido femenino para ocasión casual o formal.",
+    "basePrice": 149900.00,
+    "active": true,
+    "variants": [
+      {"sku": "VES-MID-M-NEG", "size": "M", "color": "Negro", "price": 149900.00, "available": 8}
+    ]
+  }
+}
+tests { test("ADMIN creates product", function() { expect(res.status).to.equal(201); }); }

@@ -1,0 +1,7 @@
+meta { name: Reject invalid registration; type: http; seq: 3 }
+post { url: {{baseUrl}}/auth/register; body: json }
+headers { Content-Type: application/json }
+body:json {
+  {"name":"","email":"correo-invalido","password":"short"}
+}
+tests { test("Invalid registration returns HTTP 400", function() { expect(res.status).to.equal(400); }); }

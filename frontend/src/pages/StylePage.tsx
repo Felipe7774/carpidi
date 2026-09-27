@@ -1,0 +1,16 @@
+import { FormEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getRecommendations, Recommendation, saveQuestionnaire } from '../services/recommendations';
+import { useAuth } from '../state/AuthContext';
+
+export function StylePage() {
+  const { user } = useAuth();
+  const [bodyType, setBodyType] = useState(''); const [skinTone, setSkinTone] = useState('');
+  const [heightRange, setHeightRange] = useState(''); const [styles, setStyles] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]); const [message, setMessage] = useState(''); const [error, setError] = useState('');
+  useEffect(() => { if (user) getRecommendations().then(setRecommendations).catch(() => undefined); }, [user]);
+  if (!user) return <section className="card"><h1>Asesoría de estilo</h1><p>Ingresa para recibir recomendaciones personalizadas.</p><Link className="button" to="/login">Ingresar</Link></section>;
+  const toggle = (value: string) => setStyles(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value]);
+  async function submit(event: FormEvent) { event.preventDefault(); setError(''); setMessage(''); try { await saveQuestionnaire({ bodyType, skinTone, heightRange, stylePreferences: styles, consent: true }); setRecommendations(await getRecommendations()); setMessage('¡Listo! Actualizamos tus recomendaciones.'); } catch { setError('Completa todos los campos e inténtalo de nuevo.'); } }
+  return <section><div className="card"><h1>Asesoría de estilo</h1><p>Cuéntanos sobre ti y encontraremos prendas que combinan contigo.</p><form className="form-grid" onSubmit={submit}><label>Tipo de cuerpo<select required value={bodyType} onChange={e => setBodyType(e.target.value)}><option value="">Selecciona</option><option>Reloj de arena</option><option>Triángulo</option><option>Rectángulo</option><option>Óvalo</option></select></label><label>Tono de piel<select required value={skinTone} onChange={e => setSkinTone(e.target.value)}><option value="">Selecciona</option><option>Claro</option><option>Medio</option><option>Oscuro</option></select></label><label>Estatura<select required value={heightRange} onChange={e => setHeightRange(e.target.value)}><option value="">Selecciona</option><option>Baja</option><option>Media</option><option>Alta</option></select></label><fieldset><legend>Estilo preferido</legend>{['casual','elegante','deportivo','romántico'].map(style => <label className="check" key={style}><input type="checkbox" checked={styles.includes(style)} onChange={() => toggle(style)} /> {style}</label>)}</fieldset><button className="button" disabled={!styles.length}>Guardar y recomendar</button></form>{message && <p className="success">{message}</p>}{error && <p className="error">{error}</p>}</div><div className="card"><h2>Recomendaciones para ti</h2>{recommendations.length ? <div className="product-grid">{recommendations.map(item => <article className="product-card" key={item.productId}><h3>{item.name}</h3><p>{item.reason}</p><strong>${item.price.toLocaleString('es-CO')}</strong><Link to={`/productos/${item.productId}`}>Ver producto</Link></article>)}</div> : <p>Aún no hay recomendaciones. Completa el cuestionario.</p>}</div></section>;
+}
