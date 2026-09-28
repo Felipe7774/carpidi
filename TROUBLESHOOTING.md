@@ -274,3 +274,11 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Se mantuvo la URL pública sin modificaciones y se realizó la validación mediante solicitudes HTTPS directas contra Cloud Run. La evidencia documenta códigos HTTP reales, flujo de checkout e inventario antes/después, sin revelar tokens o credenciales.
 
 **Prevención:** Conservar evidencia reproducible en Bruno/Postman y en documentos versionados; una restricción de extensión o navegador no debe ser la única fuente de validación del proyecto.
+
+## 2026-09-28 16:35 - Solicitudes POST de autenticación bloqueadas en navegador integrado
+
+**Descripción del error:** El catálogo público cargaba correctamente, pero las solicitudes `POST` de registro e inicio de sesión desde el navegador integrado fallaban antes de recibir la respuesta de la API, mientras las mismas rutas respondían por HTTPS directo.
+
+**Solución aplicada:** El frontend ahora usa un proxy de Vercel propio para `/api/v1/*`. El proxy responde preflight CORS, no reenvía el encabezado `Origin` al backend y reenvía de forma controlada las solicitudes al servicio Cloud Run. La interfaz de autenticación usa `fetch` nativo y muestra el mensaje devuelto por la API.
+
+**Prevención:** Mantener la comunicación del navegador con la API detrás de un único origen público y validar tanto `GET` como `POST` desde la interfaz desplegada, no solo con solicitudes de terminal.
