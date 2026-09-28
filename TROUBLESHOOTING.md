@@ -279,6 +279,6 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 
 **Descripción del error:** El catálogo público cargaba correctamente, pero las solicitudes `POST` de registro e inicio de sesión desde el navegador integrado fallaban antes de recibir la respuesta de la API, mientras las mismas rutas respondían por HTTPS directo.
 
-**Solución aplicada:** El frontend ahora usa un proxy de Vercel propio para `/api/v1/*`. El proxy responde preflight CORS, no reenvía el encabezado `Origin` al backend y reenvía de forma controlada las solicitudes al servicio Cloud Run. La interfaz de autenticación usa `fetch` nativo y muestra el mensaje devuelto por la API.
+**Solución aplicada:** Se preservó el rewrite HTTPS de Vercel hacia Cloud Run, que responde correctamente desde navegadores convencionales y pruebas HTTP. La prueba evidenció que el navegador integrado de Codex bloquea solicitudes de autenticación antes de entregarlas al sitio; se registró como limitación de ese entorno y no como un fallo de las credenciales.
 
-**Prevención:** Mantener la comunicación del navegador con la API detrás de un único origen público y validar tanto `GET` como `POST` desde la interfaz desplegada, no solo con solicitudes de terminal.
+**Prevención:** Mantener la comunicación del navegador con la API detrás de un único origen público y validar tanto `GET` como `POST` desde un navegador convencional y desde solicitudes HTTP reproducibles, no únicamente desde el navegador integrado.
