@@ -21,7 +21,13 @@ export function RegisterPage() {
       navigate('/carrito');
     } catch (cause) {
       const status = cause instanceof AxiosError ? cause.response?.status : undefined;
-      setError(status === 409 ? 'Ese correo ya está registrado.' : 'La contraseña debe tener mínimo 12 caracteres, mayúscula, minúscula, número y símbolo.');
+      const response = cause instanceof AxiosError
+        ? cause.response?.data as { detail?: string; errors?: { message?: string }[] } | undefined
+        : undefined;
+      const validationMessage = response?.errors?.[0]?.message ?? response?.detail;
+      setError(status === 409
+        ? 'Ese correo ya está registrado.'
+        : validationMessage ?? 'No fue posible crear la cuenta. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
