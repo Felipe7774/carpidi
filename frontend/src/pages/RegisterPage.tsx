@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../state/AuthContext';
@@ -20,8 +20,8 @@ export function RegisterPage() {
       await register(name, email, password);
       navigate('/carrito');
     } catch (cause) {
-      const status = cause instanceof AxiosError ? cause.response?.status : undefined;
-      const response = cause instanceof AxiosError
+      const status = isAxiosError(cause) ? cause.response?.status : undefined;
+      const response = isAxiosError(cause)
         ? cause.response?.data as { detail?: string; errors?: { message?: string }[] } | undefined
         : undefined;
       const validationMessage = response?.errors?.[0]?.message ?? response?.detail;
