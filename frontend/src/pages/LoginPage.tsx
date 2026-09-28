@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../state/AuthContext';
@@ -19,8 +19,13 @@ export function LoginPage() {
       await login(email, password);
       navigate('/carrito');
     } catch (cause) {
-      const status = cause instanceof AxiosError ? cause.response?.status : undefined;
-      setError(status === 401 ? 'Correo o contraseña incorrectos.' : 'No fue posible iniciar sesión.');
+      const status = isAxiosError(cause) ? cause.response?.status : undefined;
+      const response = isAxiosError(cause)
+        ? cause.response?.data as { detail?: string } | undefined
+        : undefined;
+      setError(status === 401
+        ? 'Correo o contraseña incorrectos.'
+        : response?.detail ?? 'No fue posible iniciar sesión.');
     } finally {
       setLoading(false);
     }
