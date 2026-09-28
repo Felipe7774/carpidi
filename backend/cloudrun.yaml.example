@@ -32,4 +32,4 @@ spec:
                   name: JWT_SECRET
                   key: latest
             - name: APP_ALLOWED_ORIGINS
-              value: https://carpidi-web.carlosgcb74.chatgpt.site
+              value: "https://carpidi.vercel.app,https://carpidi-web.carlosgcb74.chatgpt.site"

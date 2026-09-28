@@ -277,8 +277,8 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 
 ## 2026-09-28 16:35 - Solicitudes POST de autenticación bloqueadas en navegador integrado
 
-**Descripción del error:** El catálogo público cargaba correctamente, pero las solicitudes `POST` de registro e inicio de sesión desde el navegador integrado fallaban antes de recibir la respuesta de la API, mientras las mismas rutas respondían por HTTPS directo.
+**Descripción del error:** El catálogo público cargaba correctamente, pero registro e inicio de sesión devolvían un error genérico. Cloud Run respondía `403 Invalid CORS request` al preflight enviado desde `https://carpidi.vercel.app`, porque `APP_ALLOWED_ORIGINS` solo contenía el dominio anterior del frontend.
 
-**Solución aplicada:** Se preservó el rewrite HTTPS de Vercel hacia Cloud Run, que responde correctamente desde navegadores convencionales y pruebas HTTP. La prueba evidenció que el navegador integrado de Codex bloquea solicitudes de autenticación antes de entregarlas al sitio; se registró como limitación de ese entorno y no como un fallo de las credenciales.
+**Solución aplicada:** Se añadió `https://carpidi.vercel.app` a `APP_ALLOWED_ORIGINS` en Cloud Run, conservando el dominio anterior. Se desplegó la revisión y se comprobó que el preflight responde `200` tanto directamente desde Cloud Run como a través de Vercel; la interfaz muestra ahora los errores funcionales devueltos por la API.
 
-**Prevención:** Mantener la comunicación del navegador con la API detrás de un único origen público y validar tanto `GET` como `POST` desde un navegador convencional y desde solicitudes HTTP reproducibles, no únicamente desde el navegador integrado.
+**Prevención:** Cada vez que cambie el dominio público del frontend, actualizar `APP_ALLOWED_ORIGINS` en Cloud Run y en los archivos de despliegue. Verificar el preflight `OPTIONS` y las rutas `POST` de autenticación.
