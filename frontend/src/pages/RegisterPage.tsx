@@ -1,6 +1,6 @@
-import { isAxiosError } from 'axios';
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthRequestError } from '../services/auth';
 import { useAuth } from '../state/AuthContext';
 
 export function RegisterPage() {
@@ -20,11 +20,8 @@ export function RegisterPage() {
       await register(name, email, password);
       navigate('/carrito');
     } catch (cause) {
-      const status = isAxiosError(cause) ? cause.response?.status : undefined;
-      const response = isAxiosError(cause)
-        ? cause.response?.data as { detail?: string; errors?: { message?: string }[] } | undefined
-        : undefined;
-      const validationMessage = response?.errors?.[0]?.message ?? response?.detail;
+      const status = cause instanceof AuthRequestError ? cause.status : undefined;
+      const validationMessage = cause instanceof AuthRequestError ? cause.message : undefined;
       setError(status === 409
         ? 'Ese correo ya está registrado.'
         : validationMessage ?? 'No fue posible crear la cuenta. Inténtalo de nuevo.');
