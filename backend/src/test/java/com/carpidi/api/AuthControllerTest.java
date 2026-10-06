@@ -39,4 +39,17 @@ class AuthControllerTest {
         .content("{\"name\":\"\",\"email\":\"bad\",\"password\":\"short\"}"))
         .andExpect(status().isBadRequest());
   }
+
+  @Test
+  void loginReturnsOnlyTokenFields() throws Exception {
+    when(authService.login(any())).thenReturn(new AuthController.TokenResponse("access-token", "refresh-token", 900));
+
+    mvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+        .content("{\"email\":\"diana@example.com\",\"password\":\"CarpidiSecure2026!\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").value("access-token"))
+        .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
+        .andExpect(jsonPath("$.expiresIn").value(900))
+        .andExpect(jsonPath("$.user").doesNotExist());
+  }
 }

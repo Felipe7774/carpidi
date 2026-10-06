@@ -1,7 +1,25 @@
-meta { name: Register client; type: http; seq: 1 }
-post { url: {{baseUrl}}/auth/register; body: json }
-headers { Content-Type: application/json }
+meta {
+  name: Register client
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
 body:json {
   {"name":"Diana CARPIDI","email":"{{clientEmail}}","password":"{{clientPassword}}"}
 }
-tests { test("Client is created", function() { expect(res.status).to.equal(201); }); }
+
+tests {
+  test("Client is created", function() {
+    expect(res.status).to.equal(201);
+  });
+}

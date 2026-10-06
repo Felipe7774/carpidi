@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { AuthResponse, login as loginRequest, register as registerRequest, SessionUser } from '../services/auth';
+import { AuthResponse, getProfile, login as loginRequest, register as registerRequest, SessionUser } from '../services/auth';
 
 type AuthContextValue = {
   user?: SessionUser;
@@ -18,7 +18,14 @@ const savedUser = () => {
 const persistSession = (response: AuthResponse) => {
   localStorage.setItem('accessToken', response.accessToken);
   localStorage.setItem('refreshToken', response.refreshToken);
-  localStorage.setItem('sessionUser', JSON.stringify(response.user));
+};
+
+const persistUser = (user: SessionUser) => localStorage.setItem('sessionUser', JSON.stringify(user));
+
+const clearSession = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('sessionUser');
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -29,18 +36,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async login(email, password) {
       const response = await loginRequest(email, password);
       persistSession(response);
-      setUser(response.user);
+      try {
+        const profile = await getProfile(response.accessToken);
+        persistUser(profile);
+        setUser(profile);
+      } catch (error) {
+        clearSession();
+        throw error;
+      }
     },
     async register(name, email, password) {
       await registerRequest(name, email, password);
       const response = await loginRequest(email, password);
       persistSession(response);
-      setUser(response.user);
+      try {
+        const profile = await getProfile(response.accessToken);
+        persistUser(profile);
+        setUser(profile);
+      } catch (error) {
+        clearSession();
+        throw error;
+      }
     },
     logout() {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('sessionUser');
+      clearSession();
       setUser(undefined);
     },
   }), [user]);

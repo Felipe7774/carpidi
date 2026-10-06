@@ -9,7 +9,6 @@ export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  user: SessionUser;
 };
 
 export class AuthRequestError extends Error {
@@ -41,6 +40,14 @@ async function postAuth<T>(path: string, payload: Record<string, string>) {
 
 export async function login(email: string, password: string) {
   return postAuth<AuthResponse>('/auth/login', { email, password });
+}
+
+export async function getProfile(accessToken: string) {
+  const response = await fetch('/api/v1/me', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) throw new AuthRequestError(response.status, 'No fue posible cargar el perfil.');
+  return response.json() as Promise<SessionUser>;
 }
 
 export async function register(name: string, email: string, password: string) {

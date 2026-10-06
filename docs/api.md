@@ -7,7 +7,7 @@ Todas las rutas se prefijan con `/api/v1`. Las respuestas de error usan `applica
 | Método y ruta | Request | Respuesta | Códigos |
 | --- | --- | --- | --- |
 | `POST /auth/register` | `name,email,password` | usuario y roles | 201, 400, 409 |
-| `POST /auth/login` | `email,password` | `accessToken,refreshToken,expiresIn,user` | 200, 401 |
+| `POST /auth/login` | `email,password` | `accessToken,refreshToken,expiresIn` | 200, 401 |
 | `POST /auth/refresh-token` | `refreshToken` | tokens renovados | 200, 401 |
 | `POST /auth/logout` | `refreshToken` | vacío | 204 |
 

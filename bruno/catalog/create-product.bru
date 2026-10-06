@@ -1,7 +1,23 @@
-meta { name: Create product as ADMIN; type: http; seq: 4 }
-post { url: {{baseUrl}}/products; body: json; auth: bearer }
-auth:bearer { token: {{adminAccessToken}} }
-headers { Content-Type: application/json }
+meta {
+  name: Create product as ADMIN
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/products
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminAccessToken}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
 body:json {
   {
     "categoryId": "10000000-0000-0000-0000-000000000001",
@@ -15,4 +31,9 @@ body:json {
     ]
   }
 }
-tests { test("ADMIN creates product", function() { expect(res.status).to.equal(201); }); }
+
+tests {
+  test("ADMIN creates product", function() {
+    expect(res.status).to.equal(201);
+  });
+}

@@ -1,6 +1,20 @@
-meta { name: Checkout; type: http; seq: 5 }
-post { url: {{baseUrl}}/orders; body: json }
-headers { Authorization: Bearer {{accessToken}}; Content-Type: application/json }
+meta {
+  name: Checkout
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+}
+
 body:json {
   {
     "items": [
@@ -17,6 +31,7 @@ body:json {
     "paymentMethod": "MANUAL_TEST"
   }
 }
+
 tests {
   test("Checkout creates an order", function() {
     expect(res.status).to.equal(201);

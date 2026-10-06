@@ -1,0 +1,17 @@
+meta {
+  name: Reject orders without authentication
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/orders
+  body: none
+  auth: none
+}
+
+tests {
+  test("Orders without JWT return controlled HTTP 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

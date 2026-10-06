@@ -1,3 +1,15 @@
-meta { name: Get my cart; type: http; seq: 4 }
-get { url: {{baseUrl}}/me/cart }
-headers { Authorization: Bearer {{accessToken}} }
+meta {
+  name: Get my cart
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/me/cart
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}

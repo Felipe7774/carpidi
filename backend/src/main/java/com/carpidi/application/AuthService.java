@@ -72,7 +72,7 @@ public class AuthService {
     String accessToken=jwtService.createAccessToken(user);
     String rawRefresh=UUID.randomUUID()+"."+UUID.randomUUID();
     refreshTokens.save(new RefreshToken(user, hash(rawRefresh), clock.instant().plus(refreshTtl)));
-    return new TokenResponse(accessToken, rawRefresh, jwtService.accessTtlSeconds(), toResponse(user));
+    return new TokenResponse(accessToken, rawRefresh, jwtService.accessTtlSeconds());
   }
 
   private UserResponse toResponse(User user) {

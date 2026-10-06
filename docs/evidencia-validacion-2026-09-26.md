@@ -32,3 +32,17 @@ La variante utilizada fue `30000000-0000-0000-0000-000000000001`. No se incluyen
 4. Para los errores controlados, ejecuta `auth/register-invalid`, `catalog/product-not-found` y `orders/checkout-invalid`.
 
 Las solicitudes Bruno incluyen aserciones para los códigos HTTP críticos. Esta matriz complementa la evidencia visual que se mostrará durante la sustentación.
+
+## Revalidación local con Bruno 4.2.1 — 5 de octubre de 2026
+
+Se ejecutaron solicitudes seguras contra `http://localhost:8080/api/v1`, conectado al PostgreSQL local de Docker. La prueba de catálogo devolvió tres registros reales.
+
+| Solicitud Bruno | HTTP esperado | HTTP obtenido | Estado |
+|---|---:|---:|---|
+| `health.bru` | 200 | 200 | PASS |
+| `catalog/list-products.bru` | 200 | 200 | PASS |
+| `catalog/product-not-found.bru` | 404 | 404 | PASS |
+| `auth/register-invalid.bru` | 400 | 400 | PASS |
+| `orders/list-orders-unauthorized.bru` | 401 | 401 | PASS |
+
+Estas pruebas no crean usuarios, productos ni pedidos. Demuestran disponibilidad, consumo de datos reales y manejo controlado de validación, autenticación y recursos inexistentes.

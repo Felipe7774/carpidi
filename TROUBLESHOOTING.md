@@ -282,3 +282,29 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Se añadió `https://carpidi.vercel.app` a `APP_ALLOWED_ORIGINS` en Cloud Run, conservando el dominio anterior. Se desplegó la revisión y se comprobó que el preflight responde `200` tanto directamente desde Cloud Run como a través de Vercel; la interfaz muestra ahora los errores funcionales devueltos por la API.
 
 **Prevención:** Cada vez que cambie el dominio público del frontend, actualizar `APP_ALLOWED_ORIGINS` en Cloud Run y en los archivos de despliegue. Verificar el preflight `OPTIONS` y las rutas `POST` de autenticación.
+
+## 2026-10-05 - Bruno 4.2 omitió solicitudes por sintaxis compacta incompatible
+
+**Descripción del error:** Bruno CLI 4.2.1 detectó los archivos `.bru`, pero omitió todas las solicitudes porque los bloques `meta`, `get`, `post`, `headers` y `tests` estaban escritos en una sola línea con separadores `;`, formato que el analizador actual no acepta.
+
+**Solución aplicada:** Se migraron todas las solicitudes al formato Bru multilínea actual, se añadió una prueba explícita de acceso a pedidos sin JWT y se ejecutaron cinco escenarios seguros contra la API local. Los resultados fueron `200` para salud y catálogo, `404` para producto inexistente, `400` para registro inválido y `401` para pedidos sin autenticación; todas las pruebas finalizaron en estado `PASS`.
+
+**Prevención:** Validar las colecciones con la misma versión de Bruno Desktop/CLI utilizada en la sustentación y conservar cada propiedad Bru en una línea independiente.
+
+## 2026-10-05 - URL base de Bruno duplicaba la ruta de autenticación
+
+**Descripción del error:** El entorno local de Bruno incluía `/auth/login` dentro de `baseUrl`, mientras la solicitud de inicio de sesión añadía nuevamente `/auth/login`. La petición terminaba en una ruta distinta a la API pública y respondía con `401`.
+
+**Solución aplicada:** Se normalizó `baseUrl` a `https://carpidi.vercel.app/api/v1`; la solicitud conserva como ruta relativa `/auth/login`. Las variables de correo y contraseña se dejaron vacías para que cada desarrollador las introduzca localmente y no queden almacenadas en el repositorio.
+
+**Validación:** `GET /api/v1/health` responde `200` y `POST /api/v1/auth/login` con cuerpo vacío responde `400` de validación, confirmando que la ruta pública correcta está disponible sin requerir JWT.
+
+**Prevención:** Las variables base deben contener solo el prefijo común de la API. Nunca almacenar contraseñas de pruebas en archivos `.bru` ni mostrarlas en capturas.
+
+## 2026-10-05 - Respuesta de autenticación exponía datos de perfil innecesarios
+
+**Descripción del error:** `POST /auth/login` incluía un objeto `user` junto con los tokens, aunque el consumidor solo necesita el par de tokens y su tiempo de expiración. Además, Bruno estaba conservando credenciales y tokens de una ejecución en el archivo versionado del entorno.
+
+**Solución aplicada:** La respuesta quedó limitada a `accessToken`, `refreshToken` y `expiresIn`. El frontend obtiene el perfil mediante `GET /me` después de autenticar, Bruno usa variables de ejecución y el entorno versionado se conserva sin credenciales ni tokens reales.
+
+**Prevención:** Aplicar minimización de datos en cada DTO, separar autenticación de consulta de perfil y revisar el repositorio antes de publicar para detectar secretos o tokens accidentales.

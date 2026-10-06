@@ -40,5 +40,5 @@ public class AuthController {
   public record LoginRequest(@NotBlank @Email String email, @NotBlank @Size(max=72) String password) {}
   public record RefreshRequest(@NotBlank String refreshToken) {}
   public record UserResponse(String id, String name, String email, Set<String> roles) {}
-  public record TokenResponse(String accessToken, String refreshToken, long expiresIn, UserResponse user) {}
+  public record TokenResponse(String accessToken, String refreshToken, long expiresIn) {}
 }
