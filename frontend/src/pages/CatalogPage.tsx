@@ -1,11 +1,12 @@
 import { AxiosError } from 'axios';
 import { FormEvent, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Category, getCategories, getProducts, Product } from '../services/catalog';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
 export function CatalogPage() {
+  const isHome = useLocation().pathname === '/';
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState('');
@@ -38,9 +39,9 @@ export function CatalogPage() {
     void loadCatalog();
   };
 
-  return <section>
-    <h1>Moda para ti</h1>
-    <p>Ropa, zapatos y accesorios. La asesoría de imagen es opcional.</p>
+  return <section className={isHome ? 'catalog-home' : ''}>
+    {isHome && <><section className="hero"><div className="hero-content"><p className="eyebrow">Nueva temporada</p><h1>Viste tu <em>propia</em> versión.</h1><p className="hero-copy">Moda femenina para construir un estilo que se siente tan auténtico como tú.</p><div className="button-row"><a className="button button-light" href="#novedades">Explorar novedades</a><Link className="button button-outline" to="/estilo">Encuentra tu estilo</Link></div></div></section><section className="home-intro"><div><p className="eyebrow">CARPIDI, moda con intención</p><h2>Menos ruido.<br/>Más tú.</h2></div><p>Explora ropa, zapatos y accesorios a tu ritmo. La asesoría de estilo es opcional y está disponible cuando la necesites.</p></section><section className="category-grid"><Link className="category-link" to="/catalogo"><span>01</span><strong>Ropa</strong><span>↗</span></Link><Link className="category-link" to="/catalogo"><span>02</span><strong>Zapatos</strong><span>↗</span></Link><Link className="category-link" to="/catalogo"><span>03</span><strong>Accesorios</strong><span>↗</span></Link></section></>}
+    <section className="catalog-section" id="novedades"><div className="catalog-heading"><div><p className="eyebrow">{isHome ? 'Selección de temporada' : 'Todo el catálogo'}</p><h2>{isHome ? 'Recién llegado' : 'Encuentra tu próxima pieza'}</h2></div></div>
     <form className="filters" onSubmit={onSubmit}>
       <input aria-label="Buscar productos" value={query} onChange={event => setQuery(event.target.value)} placeholder="Buscar prendas" />
       <select aria-label="Filtrar por categoría" value={category} onChange={event => setCategory(event.target.value)}>
@@ -53,13 +54,13 @@ export function CatalogPage() {
     {error && <p className="error" role="alert">{error}</p>}
     {!loading && !error && products.length === 0 && <p className="empty">Aún no hay productos publicados. El catálogo ya está conectado a la API.</p>}
     <div className="grid">
-      {products.map(product => <article key={product.id}>
+      {products.map(product => <article className="product-card" key={product.id}>
         <div className="placeholder" aria-hidden="true" />
         <p className="eyebrow">{product.category.name}</p>
         <h2>{product.name}</h2>
-        <p>{money.format(product.basePrice)}</p>
+        <p className="price">{money.format(product.basePrice)}</p>
         <Link to={`/productos/${product.id}`}>Ver producto</Link>
       </article>)}
     </div>
-  </section>;
+    </section></section>;
 }

@@ -15,20 +15,19 @@ function AppShell() {
   const { user, logout } = useAuth();
   const { totalItems } = useCart();
   return <>
-    <header>
-      <Link to="/">CARPIDI</Link>
-      <nav>
+    <header className="site-header">
+      <Link className="brand" to="/">CARPIDI</Link>
+      <nav className="site-nav" aria-label="Navegación principal">
         <Link to="/catalogo">Catálogo</Link>
-        <Link to="/carrito">Carrito ({totalItems})</Link>
+        <Link to="/estilo">Tu estilo</Link>
         {user && <Link to="/pedidos">Mis pedidos</Link>}
         {user && <Link to="/perfil">Perfil</Link>}
-        <Link to="/estilo">Mi estilo</Link>
         {user?.roles.includes('ADMIN') && <Link to="/admin">Admin</Link>}
-        {user ? <button className="link-button" onClick={logout}>Salir</button> : <Link to="/login">Ingresar</Link>}
       </nav>
+      <div className="site-actions">{user ? <button className="link-button" onClick={logout}>Salir</button> : <Link to="/login">Ingresar</Link>}<Link className="cart-link" to="/carrito">Bolsa <span>{totalItems}</span></Link></div>
     </header>
+    {user && <p className="session">Hola, {user.name}. Tu sesión está activa.</p>}
     <main>
-      {user && <p className="session">Sesión activa: {user.name}</p>}
       <Routes>
         <Route path="/" element={<CatalogPage />} />
         <Route path="/catalogo" element={<CatalogPage />} />

@@ -308,3 +308,10 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** La respuesta quedó limitada a `accessToken`, `refreshToken` y `expiresIn`. El frontend obtiene el perfil mediante `GET /me` después de autenticar, Bruno usa variables de ejecución y el entorno versionado se conserva sin credenciales ni tokens reales.
 
 **Prevención:** Aplicar minimización de datos en cada DTO, separar autenticación de consulta de perfil y revisar el repositorio antes de publicar para detectar secretos o tokens accidentales.
+
+## 2026-10-16 20:00 - Frontend build
+
+- Error: el comando `tsc` no estuvo disponible inmediatamente después de instalar dependencias.
+- Solución aplicada: se verificó la instalación local de TypeScript y se ejecutó nuevamente la compilación.
+- Prevención: ejecutar `npm install` y comprobar `node_modules/.bin` antes de compilar localmente.
+
