@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
-import { AuthResponse, getProfile, login as loginRequest, register as registerRequest, SessionUser } from '../services/auth';
+import { AuthResponse, getProfile, login as loginRequest, register as registerRequest, logout as logoutRequest, SessionUser } from '../services/auth';
 
 type AuthContextValue = {
   user?: SessionUser;
@@ -59,6 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     logout() {
+      const currentRefresh = localStorage.getItem('refreshToken');
+      if (currentRefresh) {
+        void logoutRequest(currentRefresh);
+      }
       clearSession();
       setUser(undefined);
     },

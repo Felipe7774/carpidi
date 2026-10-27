@@ -309,9 +309,18 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 
 **Prevención:** Aplicar minimización de datos en cada DTO, separar autenticación de consulta de perfil y revisar el repositorio antes de publicar para detectar secretos o tokens accidentales.
 
-## 2026-10-16 20:00 - Frontend build
+## 2026-10-19 - Desconexión de VITE_API_URL y omisión de revocación de sesión en frontend
 
-- Error: el comando `tsc` no estuvo disponible inmediatamente después de instalar dependencias.
-- Solución aplicada: se verificó la instalación local de TypeScript y se ejecutó nuevamente la compilación.
-- Prevención: ejecutar `npm install` y comprobar `node_modules/.bin` antes de compilar localmente.
+**Descripción del error:** El servicio de autenticación en [`frontend/src/services/auth.ts`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/services/auth.ts) ejecutaba peticiones directas a `/api/v1` mediante `fetch` sin tomar en cuenta `VITE_API_URL`. Al conectarse a entornos desacoplados o URLs de Cloud Run, las peticiones fallaban. Adicionalmente, el método `logout()` de [`AuthContext.tsx`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/state/AuthContext.tsx) eliminaba únicamente el estado local (`localStorage`) omitiendo invocar `POST /api/v1/auth/logout`, lo que dejaba el refresh token activo en la base de datos hasta su expiración de 14 días.
 
+**Solución aplicada:** Se normalizó la URL base en `auth.ts` utilizando `import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1'`. Se añadió la función `logout(refreshToken)` en `auth.ts` y se conectó su ejecución en `AuthContext.logout()` para notificar al backend e invalidar el token en PostgreSQL de manera asíncrona y segura.
+
+**Prevención:** Garantizar que todas las llamadas de red utilicen de forma consistente la variable de entorno configurada (`VITE_API_URL`) y que el ciclo de vida de autenticación revoque credenciales de lado servidor sin almacenar datos sensibles en commits ni código fuente.
+
+## 2026-10-26 - Login y registro redirigían siempre al carrito
+
+**Descripción del error:** Después de autenticarse, Login y Registro navegaban siempre a `/carrito`, incluso cuando el usuario había iniciado el flujo desde otra sección de CARPIDI.
+
+**Solución aplicada:** Ambas pantallas ahora respetan una ruta de retorno proporcionada mediante `location.state.from` y, si no existe, regresan a `/` como destino predeterminado.
+
+**Prevención:** Las rutas protegidas deben conservar el destino original del usuario y no imponer una pantalla comercial que no corresponda al contexto de navegación.

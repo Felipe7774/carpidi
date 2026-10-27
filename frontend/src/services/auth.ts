@@ -18,9 +18,11 @@ export class AuthRequestError extends Error {
   }
 }
 
+const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
+
 async function postAuth<T>(path: string, payload: Record<string, string>) {
   try {
-    const response = await fetch(`/api/v1${path}`, {
+    const response = await fetch(`${apiBase}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -43,7 +45,7 @@ export async function login(email: string, password: string) {
 }
 
 export async function getProfile(accessToken: string) {
-  const response = await fetch('/api/v1/me', {
+  const response = await fetch(`${apiBase}/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!response.ok) throw new AuthRequestError(response.status, 'No fue posible cargar el perfil.');
@@ -52,4 +54,16 @@ export async function getProfile(accessToken: string) {
 
 export async function register(name: string, email: string, password: string) {
   return postAuth<SessionUser>('/auth/register', { name, email, password });
+}
+
+export async function logout(refreshToken: string): Promise<void> {
+  try {
+    await fetch(`${apiBase}/auth/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch {
+    // Falla no bloqueante en logout del cliente
+  }
 }
