@@ -1,6 +1,7 @@
 import { api } from './api';
 
 export type Category = { id: string; name: string; slug: string };
+
 export type ProductVariant = {
   id: string;
   sku: string;
@@ -9,21 +10,29 @@ export type ProductVariant = {
   price: number;
   available: number;
 };
+
 export type Product = {
   id: string;
   slug: string;
   name: string;
   description: string | null;
+  imageUrl?: string | null;
   basePrice: number;
   active: boolean;
   category: Category;
   variants: ProductVariant[];
 };
+
 export type ProductPage = { content: Product[]; totalElements: number };
 export type CatalogFilters = { q?: string; category?: string; size?: string; color?: string };
 
 export async function getCategories(): Promise<Category[]> {
   const { data } = await api.get<Category[]>('/categories');
+  return data;
+}
+
+export async function createCategory(payload: { name: string; slug: string }): Promise<Category> {
+  const { data } = await api.post<Category>('/categories', payload);
   return data;
 }
 
@@ -38,5 +47,37 @@ export async function getProduct(id: string): Promise<Product> {
   const { data } = await api.get<Product>(`/products/${id}`);
   return data;
 }
-export async function createProduct(payload: { categoryId: string; slug: string; name: string; description: string; basePrice: number; active: boolean; variants: Array<{ sku: string; size: string; color: string; price: number; available: number }> }) { const { data } = await api.post<Product>('/products', payload); return data; }
-export async function deactivateProduct(id: string) { await api.delete(`/products/${id}`); }
+
+export async function createProduct(payload: {
+  categoryId: string;
+  slug: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  basePrice: number;
+  active: boolean;
+  variants: Array<{ sku: string; size: string; color: string; price: number; available: number }>;
+}): Promise<Product> {
+  const { data } = await api.post<Product>('/products', payload);
+  return data;
+}
+
+export async function updateProduct(
+  id: string,
+  payload: {
+    categoryId: string;
+    slug: string;
+    name: string;
+    description?: string | null;
+    imageUrl?: string | null;
+    basePrice: number;
+    active: boolean;
+  }
+): Promise<Product> {
+  const { data } = await api.put<Product>(`/products/${id}`, payload);
+  return data;
+}
+
+export async function deactivateProduct(id: string): Promise<void> {
+  await api.delete(`/products/${id}`);
+}

@@ -44,8 +44,8 @@ public class SecurityConfig {
     var source=new UrlBasedCorsConfigurationSource(); source.registerCorsConfiguration("/**", config); return source;
   }
 
-  @Bean SecurityFilterChain security(HttpSecurity http, JwtAuthenticationFilter jwtFilter,
-      SecurityProblemWriter problems) throws Exception {
+  @Bean SecurityFilterChain security(HttpSecurity http, RateLimitFilter rateLimitFilter,
+      JwtAuthenticationFilter jwtFilter, SecurityProblemWriter problems) throws Exception {
     return http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'"))
@@ -53,6 +53,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**","/products/**","/categories/**","/health","/actuator/health").permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
         .exceptionHandling(errors -> errors.authenticationEntryPoint(problems).accessDeniedHandler(problems))
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
   }
 }

@@ -48,7 +48,7 @@ public class CatalogService {
         .filter(Category::isActive)
         .orElseThrow(() -> new NoSuchElementException("Categoría no encontrada."));
     Product product = new Product(category, normalizeSlug(command.slug()), command.name().trim(),
-        clean(command.description()), command.basePrice(), command.active());
+        clean(command.description()), clean(command.imageUrl()), command.basePrice(), command.active());
     command.variants().stream().map(this::newVariant).forEach(product::addVariant);
     return toView(products.save(product));
   }
@@ -62,7 +62,7 @@ public class CatalogService {
         .filter(Category::isActive)
         .orElseThrow(() -> new NoSuchElementException("Categoría no encontrada."));
     product.update(category, normalizeSlug(command.slug()), command.name().trim(),
-        clean(command.description()), command.basePrice(), command.active());
+        clean(command.description()), clean(command.imageUrl()), command.basePrice(), command.active());
     return toView(product);
   }
 
@@ -117,7 +117,7 @@ public class CatalogService {
             v.getInventory() == null ? 0 : v.getInventory().getSellable()))
         .toList();
     return new ProductView(product.getId(), product.getSlug(), product.getName(),
-        product.getDescription(), product.getBasePrice(), product.isActive(),
+        product.getDescription(), product.getImageUrl(), product.getBasePrice(), product.isActive(),
         toView(product.getCategory()), variantViews);
   }
 
@@ -138,12 +138,22 @@ public class CatalogService {
   }
 
   public record CreateProductCommand(UUID categoryId, String slug, String name, String description,
-      BigDecimal basePrice, boolean active, List<VariantCommand> variants) {}
+      String imageUrl, BigDecimal basePrice, boolean active, List<VariantCommand> variants) {
+    public CreateProductCommand(UUID categoryId, String slug, String name, String description,
+        BigDecimal basePrice, boolean active, List<VariantCommand> variants) {
+      this(categoryId, slug, name, description, null, basePrice, active, variants);
+    }
+  }
   public record UpdateProductCommand(UUID categoryId, String slug, String name, String description,
-      BigDecimal basePrice, boolean active) {}
+      String imageUrl, BigDecimal basePrice, boolean active) {
+    public UpdateProductCommand(UUID categoryId, String slug, String name, String description,
+        BigDecimal basePrice, boolean active) {
+      this(categoryId, slug, name, description, null, basePrice, active);
+    }
+  }
   public record VariantCommand(String sku, String size, String color, BigDecimal price, int available) {}
   public record CreateCategoryCommand(String name, String slug) {}
-  public record ProductView(UUID id, String slug, String name, String description,
+  public record ProductView(UUID id, String slug, String name, String description, String imageUrl,
       BigDecimal basePrice, boolean active, CategoryView category, List<VariantView> variants) {}
   public record VariantView(UUID id, String sku, String size, String color, BigDecimal price, int available) {}
   public record CategoryView(UUID id, String name, String slug) {}

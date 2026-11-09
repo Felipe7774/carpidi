@@ -9,6 +9,7 @@ import java.security.Principal;
 import java.util.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +23,11 @@ public class OrderController {
 
   @GetMapping
   @PreAuthorize("hasAnyRole('CLIENT','ADMIN')")
-  public List<OrderView> list(Principal principal) {
-    return orderService.listFor(principal.getName());
+  public List<OrderView> list(Authentication authentication) {
+    boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    String email = authentication != null ? authentication.getName() : "";
+    return orderService.listOrders(email, isAdmin);
   }
 
   @PostMapping

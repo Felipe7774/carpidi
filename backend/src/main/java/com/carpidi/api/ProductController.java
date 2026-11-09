@@ -57,11 +57,12 @@ public class ProductController {
       @NotBlank @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$") @Size(max = 160) String slug,
       @NotBlank @Size(max = 160) String name,
       @Size(max = 4000) String description,
+      @Size(max = 500) String imageUrl,
       @NotNull @DecimalMin(value = "0.01") BigDecimal basePrice,
       boolean active,
       @NotEmpty @Size(max = 100) List<@Valid VariantRequest> variants) {
     CreateProductCommand toCommand() {
-      return new CreateProductCommand(categoryId, slug, name, description, basePrice, active,
+      return new CreateProductCommand(categoryId, slug, name, description, imageUrl, basePrice, active,
           variants.stream().map(VariantRequest::toCommand).toList());
     }
   }
@@ -71,10 +72,11 @@ public class ProductController {
       @NotBlank @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$") @Size(max = 160) String slug,
       @NotBlank @Size(max = 160) String name,
       @Size(max = 4000) String description,
+      @Size(max = 500) String imageUrl,
       @NotNull @DecimalMin(value = "0.01") BigDecimal basePrice,
       boolean active) {
     UpdateProductCommand toCommand() {
-      return new UpdateProductCommand(categoryId, slug, name, description, basePrice, active);
+      return new UpdateProductCommand(categoryId, slug, name, description, imageUrl, basePrice, active);
     }
   }
 

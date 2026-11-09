@@ -324,3 +324,19 @@ Antes de habilitar el bootstrap, validar las variables locales de administrador 
 **Solución aplicada:** Ambas pantallas ahora respetan una ruta de retorno proporcionada mediante `location.state.from` y, si no existe, regresan a `/` como destino predeterminado.
 
 **Prevención:** Las rutas protegidas deben conservar el destino original del usuario y no imponer una pantalla comercial que no corresponda al contexto de navegación.
+
+
+## [2026-11-03 17:35:00 -05:00] - Dependencia insatisfecha de RateLimiterService en prueba de slice WebMvc
+
+### Descripción del Error
+Al introducir el filtro `RateLimitFilter` (inyectado en la cadena de Spring Security) para mitigar ataques de fuerza bruta en `/auth/login` y `/auth/register`, la prueba de integración `@WebMvcTest(AuthController.class)` falló durante el arranque del contexto con:
+```text
+UnsatisfiedDependencyException: Error creating bean with name 'rateLimitFilter' ... No qualifying bean of type 'com.carpidi.support.RateLimiterService' available
+```
+Esto ocurre porque `@WebMvcTest` solo escanea componentes de capa web e ignora servicios con anotación `@Service`.
+
+### Solución Aplicada
+Se agregó `@MockitoBean RateLimiterService rateLimiterService;` dentro de [`AuthControllerTest.java`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/backend/src/test/java/com/carpidi/api/AuthControllerTest.java). Con este mock provisto al contexto del slice web, `mvn test` ejecutó la totalidad de las 13 pruebas con 0 fallos y 0 errores.
+
+### Prevención
+En pruebas de slice web de Spring Boot (`@WebMvcTest`), cualquier dependencia requerida por filtros de seguridad compartidos debe mockearse explícitamente con `@MockitoBean` para aislar el contexto web sin acoplarlo a la inicialización de toda la capa de servicio.

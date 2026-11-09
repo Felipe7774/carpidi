@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.carpidi.application.AuthService;
 import com.carpidi.application.JwtService;
 import com.carpidi.infrastructure.UserRepository;
+import com.carpidi.support.RateLimiterService;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ class AuthControllerTest {
   @MockitoBean AuthService authService;
   @MockitoBean JwtService jwtService;
   @MockitoBean UserRepository userRepository;
+  @MockitoBean RateLimiterService rateLimiterService;
 
   @Test
   void registersValidClient() throws Exception {

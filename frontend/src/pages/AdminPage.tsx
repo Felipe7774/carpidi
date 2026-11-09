@@ -1,6 +1,15 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createProduct, deactivateProduct, getCategories, getProducts, Category, Product } from '../services/catalog';
+import {
+  createCategory,
+  createProduct,
+  deactivateProduct,
+  getCategories,
+  getProducts,
+  updateProduct,
+  Category,
+  Product,
+} from '../services/catalog';
 import { getOrders, Order } from '../services/orders';
 import { useAuth } from '../state/AuthContext';
 
@@ -21,13 +30,30 @@ export function AdminPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Campos de formulario
+  // Campos de formulario de creación de producto
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [price, setPrice] = useState('');
   const [variants, setVariants] = useState<DraftVariant[]>([emptyVariant()]);
+
+  // Formulario de categoría
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategorySlug, setNewCategorySlug] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
+
+  // Edición de producto
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editSlug, setEditSlug] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState('');
+  const [editCategoryId, setEditCategoryId] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   const loadData = () => {
     setLoading(true);
@@ -84,6 +110,7 @@ export function AdminPage() {
         slug,
         name,
         description,
+        imageUrl: imageUrl.trim() || undefined,
         basePrice: Number(price),
         active: true,
         variants: variants.map(variant => ({
@@ -98,6 +125,7 @@ export function AdminPage() {
       setName('');
       setSlug('');
       setDescription('');
+      setImageUrl('');
       setPrice('');
       setVariants([emptyVariant()]);
       setSuccess('Prenda, variantes e inventario inicial registrados correctamente en CARPIDI.');
@@ -106,6 +134,67 @@ export function AdminPage() {
       setError('No se pudo crear el producto. Verifica que el slug y cada SKU sean únicos y que los campos numéricos sean válidos.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleCreateCategory = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim() || !newCategorySlug.trim()) return;
+    setCreatingCategory(true);
+    setError('');
+    setSuccess('');
+    try {
+      const created = await createCategory({
+        name: newCategoryName.trim(),
+        slug: newCategorySlug.trim().toLowerCase(),
+      });
+      setCategories(curr => [...curr, created]);
+      setCategoryId(created.id);
+      setNewCategoryName('');
+      setNewCategorySlug('');
+      setShowCategoryForm(false);
+      setSuccess(`Categoría "${created.name}" creada exitosamente.`);
+    } catch {
+      setError('No fue posible crear la categoría. Verifica que el slug sea único y use solo caracteres permitidos.');
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const startEditProduct = (prod: Product) => {
+    setEditingProduct(prod);
+    setEditName(prod.name);
+    setEditSlug(prod.slug);
+    setEditDescription(prod.description ?? '');
+    setEditImageUrl(prod.imageUrl ?? '');
+    setEditCategoryId(prod.category.id);
+    setEditPrice(String(prod.basePrice));
+    window.scrollTo({ top: 400, behavior: 'smooth' });
+  };
+
+  const handleUpdateProduct = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setUpdating(true);
+    setError('');
+    setSuccess('');
+    try {
+      await updateProduct(editingProduct.id, {
+        categoryId: editCategoryId,
+        slug: editSlug.trim().toLowerCase(),
+        name: editName.trim(),
+        description: editDescription.trim() || null,
+        imageUrl: editImageUrl.trim() || null,
+        basePrice: Number(editPrice),
+        active: editingProduct.active,
+      });
+      setSuccess(`Prenda "${editName}" actualizada correctamente.`);
+      setEditingProduct(null);
+      await loadData();
+    } catch {
+      setError('No fue posible actualizar el producto. Verifica los campos requeridos y que el slug sea único.');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -150,9 +239,157 @@ export function AdminPage() {
         {loading && <div className="loading-state">Sincronizando datos con el backend…</div>}
       </div>
 
+      {/* Modal / Formulario de Edición de Producto */}
+      {editingProduct && (
+        <div className="card" style={{ border: '2px solid #8B395A', background: '#FFFCFA' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <p className="eyebrow" style={{ color: '#8B395A' }}>Modo Edición</p>
+              <h2 className="serif-title" style={{ fontSize: '1.5rem', margin: 0 }}>Editar: {editingProduct.name}</h2>
+            </div>
+            <button
+              type="button"
+              className="link-button"
+              style={{ color: '#78716C', fontSize: '0.85rem' }}
+              onClick={() => setEditingProduct(null)}
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <form className="form-stitch" onSubmit={handleUpdateProduct}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+              <label>
+                Nombre comercial
+                <input
+                  required
+                  maxLength={160}
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                />
+              </label>
+
+              <label>
+                Slug (URL amigable)
+                <input
+                  required
+                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  value={editSlug}
+                  onChange={e => setEditSlug(e.target.value.toLowerCase())}
+                />
+              </label>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+              <label>
+                Categoría
+                <select required value={editCategoryId} onChange={e => setEditCategoryId(e.target.value)}>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Precio base (COP)
+                <input
+                  required
+                  min="0.01"
+                  step="0.01"
+                  type="number"
+                  value={editPrice}
+                  onChange={e => setEditPrice(e.target.value)}
+                />
+              </label>
+            </div>
+
+            <label>
+              URL de imagen (opcional)
+              <input
+                type="url"
+                placeholder="https://images.unsplash.com/..."
+                value={editImageUrl}
+                onChange={e => setEditImageUrl(e.target.value)}
+              />
+            </label>
+
+            <label>
+              Descripción detallada
+              <textarea
+                maxLength={4000}
+                rows={3}
+                value={editDescription}
+                onChange={e => setEditDescription(e.target.value)}
+              />
+            </label>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <button className="button-stitch" type="submit" disabled={updating}>
+                {updating ? 'Guardando cambios…' : 'Guardar Cambios'}
+              </button>
+              <button className="secondary-stitch" type="button" onClick={() => setEditingProduct(null)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Creación de Categorías */}
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 className="serif-title" style={{ fontSize: '1.5rem', margin: '0 0 0.25rem' }}>Categorías del Catálogo</h2>
+            <p style={{ color: '#78716C', margin: 0, fontSize: '0.85rem' }}>{categories.length} categorías registradas.</p>
+          </div>
+          <button
+            type="button"
+            className="secondary-stitch"
+            onClick={() => setShowCategoryForm(!showCategoryForm)}
+          >
+            {showCategoryForm ? 'Cerrar formulario' : '+ Nueva categoría'}
+          </button>
+        </div>
+
+        {showCategoryForm && (
+          <form className="form-stitch" onSubmit={handleCreateCategory} style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #ECE6DE' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <label>
+                Nombre de categoría
+                <input
+                  required
+                  placeholder="Ej. Vestidos de Noche"
+                  value={newCategoryName}
+                  onChange={e => {
+                    setNewCategoryName(e.target.value);
+                    if (!newCategorySlug) {
+                      setNewCategorySlug(e.target.value.toLowerCase().replace(/\s+/g, '-'));
+                    }
+                  }}
+                />
+              </label>
+              <label>
+                Slug
+                <input
+                  required
+                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  placeholder="ej. vestidos-de-noche"
+                  value={newCategorySlug}
+                  onChange={e => setNewCategorySlug(e.target.value.toLowerCase())}
+                />
+              </label>
+            </div>
+            <button className="button-stitch" type="submit" disabled={creatingCategory} style={{ justifySelf: 'start', marginTop: '0.5rem' }}>
+              {creatingCategory ? 'Creando…' : 'Crear categoría'}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Formulario de Crear Producto */}
       <div className="card">
         <h2 className="serif-title" style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>Crear producto e inventario</h2>
-        <p className="subtitle">Registra la información comercial y al menos una variante vendible.</p>
+        <p className="subtitle">Registra la información comercial, fotografía y al menos una variante vendible.</p>
 
         <form className="form-stitch" onSubmit={onSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
@@ -179,18 +416,6 @@ export function AdminPage() {
             </label>
           </div>
 
-          <label>
-            Descripción detallada
-            <textarea
-              required
-              maxLength={4000}
-              placeholder="Describe el material, la ocasión de uso, corte y características..."
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={3}
-            />
-          </label>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
             <label>
               Categoría
@@ -215,6 +440,28 @@ export function AdminPage() {
               />
             </label>
           </div>
+
+          <label>
+            URL de imagen fotográfica (opcional)
+            <input
+              type="url"
+              placeholder="https://images.unsplash.com/..."
+              value={imageUrl}
+              onChange={e => setImageUrl(e.target.value)}
+            />
+          </label>
+
+          <label>
+            Descripción detallada
+            <textarea
+              required
+              maxLength={4000}
+              placeholder="Describe el material, la ocasión de uso, corte y características..."
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+            />
+          </label>
 
           <fieldset className="variants-editor-box">
             <legend style={{ padding: '0 0.5rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#57534E' }}>
@@ -302,12 +549,14 @@ export function AdminPage() {
         </form>
       </div>
 
+      {/* Tabla de Productos Publicados con Acciones */}
       <div className="card">
         <h2 className="serif-title" style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Productos publicados</h2>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #ECE6DE', textAlign: 'left', color: '#78716C', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '0.08em' }}>
+                <th style={{ padding: '0.75rem 0.5rem' }}>Foto</th>
                 <th style={{ padding: '0.75rem 0.5rem' }}>Nombre</th>
                 <th style={{ padding: '0.75rem 0.5rem' }}>Categoría</th>
                 <th style={{ padding: '0.75rem 0.5rem' }}>Precio Base</th>
@@ -318,6 +567,17 @@ export function AdminPage() {
             <tbody>
               {products.map(product => (
                 <tr key={product.id} style={{ borderBottom: '1px solid #FAF8F5' }}>
+                  <td style={{ padding: '0.5rem' }}>
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                    ) : (
+                      <div style={{ width: '40px', height: '40px', background: '#ECE6DE', borderRadius: '4px' }} />
+                    )}
+                  </td>
                   <td style={{ padding: '0.85rem 0.5rem', fontWeight: 600 }}>{product.name}</td>
                   <td style={{ padding: '0.85rem 0.5rem', color: '#57534E' }}>{product.category.name}</td>
                   <td style={{ padding: '0.85rem 0.5rem' }}>{money.format(product.basePrice)}</td>
@@ -325,14 +585,24 @@ export function AdminPage() {
                     {product.variants.reduce((tot, v) => tot + v.available, 0)} unidades
                   </td>
                   <td style={{ padding: '0.85rem 0.5rem' }}>
-                    <button
-                      type="button"
-                      className="link-button"
-                      style={{ color: '#991B1B', fontWeight: 600, fontSize: '0.75rem' }}
-                      onClick={() => handleDeactivate(product.id, product.name)}
-                    >
-                      Desactivar
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        className="link-button"
+                        style={{ color: '#1C1917', fontWeight: 600, fontSize: '0.75rem' }}
+                        onClick={() => startEditProduct(product)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="link-button"
+                        style={{ color: '#991B1B', fontWeight: 600, fontSize: '0.75rem' }}
+                        onClick={() => handleDeactivate(product.id, product.name)}
+                      >
+                        Desactivar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

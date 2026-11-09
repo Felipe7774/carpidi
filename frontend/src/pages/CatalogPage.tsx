@@ -159,7 +159,16 @@ export function CatalogPage() {
             <article key={product.id} className="product-card-stitch">
               <div>
                 <div className="arched-frame" aria-hidden="true">
-                  <span>CARPIDI</span>
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span>CARPIDI</span>
+                  )}
                 </div>
                 <div className="product-meta">
                   <p className="eyebrow">{product.category.name}</p>

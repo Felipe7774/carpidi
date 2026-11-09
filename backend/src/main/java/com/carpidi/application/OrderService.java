@@ -22,9 +22,15 @@ public class OrderService {
 
   @Transactional(readOnly = true)
   public List<OrderView> listFor(String email) {
-    return orders.findAllByCustomerEmailIgnoreCaseOrderByCreatedAtDesc(email).stream()
-        .map(this::toView)
-        .toList();
+    return listOrders(email, false);
+  }
+
+  @Transactional(readOnly = true)
+  public List<OrderView> listOrders(String email, boolean isAdmin) {
+    List<Order> found = isAdmin
+        ? orders.findAllByOrderByCreatedAtDesc()
+        : orders.findAllByCustomerEmailIgnoreCaseOrderByCreatedAtDesc(email);
+    return found.stream().map(this::toView).toList();
   }
 
   @Transactional
@@ -54,6 +60,7 @@ public class OrderService {
             detail.getVariant().getSize(), detail.getVariant().getColor(),
             detail.getQuantity(), detail.getUnitPrice()))
         .toList();
+
     return new OrderView(order.getId(), order.getStatus().name(), order.getTotal(),
         order.getCreatedAt(), items);
   }

@@ -12,6 +12,7 @@ public class Product {
   @Column(nullable = false, unique = true, length = 160) private String slug;
   @Column(nullable = false, length = 160) private String name;
   @Column(columnDefinition = "text") private String description;
+  @Column(length = 500) private String imageUrl;
   @Column(nullable = false, precision = 12, scale = 2) private BigDecimal basePrice;
   @Column(nullable = false) private boolean active = true;
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -21,15 +22,26 @@ public class Product {
 
   public Product(Category category, String slug, String name, String description,
       BigDecimal basePrice, boolean active) {
-    update(category, slug, name, description, basePrice, active);
+    this(category, slug, name, description, null, basePrice, active);
+  }
+
+  public Product(Category category, String slug, String name, String description,
+      String imageUrl, BigDecimal basePrice, boolean active) {
+    update(category, slug, name, description, imageUrl, basePrice, active);
   }
 
   public void update(Category category, String slug, String name, String description,
       BigDecimal basePrice, boolean active) {
+    update(category, slug, name, description, this.imageUrl, basePrice, active);
+  }
+
+  public void update(Category category, String slug, String name, String description,
+      String imageUrl, BigDecimal basePrice, boolean active) {
     this.category = Objects.requireNonNull(category);
     this.slug = Objects.requireNonNull(slug);
     this.name = Objects.requireNonNull(name);
     this.description = description;
+    this.imageUrl = imageUrl;
     this.basePrice = Objects.requireNonNull(basePrice);
     this.active = active;
   }
@@ -51,6 +63,8 @@ public class Product {
   public String getSlug() { return slug; }
   public String getName() { return name; }
   public String getDescription() { return description; }
+  public String getImageUrl() { return imageUrl; }
+  public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
   public BigDecimal getBasePrice() { return basePrice; }
   public boolean isActive() { return active; }
   public List<ProductVariant> getVariants() { return List.copyOf(variants); }
