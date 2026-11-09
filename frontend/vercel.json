@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1/:path*"
+      "destination": "https://carpidi-api.onrender.com/api/v1/:path*"
     },
     {
       "source": "/(.*)",
