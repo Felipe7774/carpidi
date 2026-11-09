@@ -1,6 +1,16 @@
 # Despliegue de CARPIDI en GCP
 
-Esta guía prepara el MVP para Cloud Run y Cloud SQL. Las credenciales se inyectan con Secret Manager; no deben escribirse en Git.
+Esta guía conserva el procedimiento histórico para Cloud Run y Cloud SQL. El despliegue vigente de CARPIDI usa Render para el backend y Supabase PostgreSQL; las credenciales se configuran como variables privadas y no deben escribirse en Git.
+
+## Despliegue vigente (Render + Supabase)
+
+- Backend: [carpidi-api.onrender.com](https://carpidi-api.onrender.com), construido desde `backend/Dockerfile`.
+- Base de datos: proyecto Supabase `carpidi-db`, con migraciones Flyway ejecutadas automáticamente.
+- Frontend: [carpidi.vercel.app](https://carpidi.vercel.app), con el rewrite `/api/v1/*` hacia Render.
+- Variables privadas del backend: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `APP_JWT_SECRET`, `APP_ALLOWED_ORIGINS`, `DB_POOL_SIZE` y `SERVER_PORT=10000`.
+- Verificación: `GET https://carpidi-api.onrender.com/api/v1/health` responde `200` y `status: UP`.
+
+El plan gratuito de Render puede suspender el servicio después de inactividad; la primera petición posterior puede tardar unos segundos en despertar el contenedor.
 
 ## Arquitectura
 
@@ -47,8 +57,8 @@ Guardar en Postman/Bruno la URL pública, pruebas `200` de `/health`, autenticac
 ## Despliegue de demostración
 
 - Proyecto GCP: `project-0b03e6ab-52a0-466a-a54`.
-- API Cloud Run: `https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1`.
+- API histórica de Cloud Run: `https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1`.
 - Verificación: `GET /health` respondió `200` con `status: UP`.
-- Frontend público: `https://carpidi-web.carlosgcb74.chatgpt.site`.
+- Frontend histórico: `https://carpidi-web.carlosgcb74.chatgpt.site`.
 
 Cloud Run utiliza una cuenta de servicio exclusiva, Secret Manager para las credenciales y Cloud SQL PostgreSQL mediante Cloud SQL Connector. La instancia se configura con escala mínima de cero para reducir costos cuando no hay solicitudes.

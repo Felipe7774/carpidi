@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v1': {
-        target: 'https://carpidi-api-a3w662uxxq-uc.a.run.app',
+        target: 'https://carpidi-api.onrender.com',
         changeOrigin: true,
       },
     },

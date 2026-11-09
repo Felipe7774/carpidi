@@ -48,8 +48,8 @@ En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediant
 
 ## Enlaces de demostración
 
-- **Frontend público:** [CARPIDI Web](https://carpidi-web.carlosgcb74.chatgpt.site)
-- **API pública (salud):** [Cloud Run /api/v1/health](https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1/health)
+- **Frontend público:** [CARPIDI Web](https://carpidi.vercel.app)
+- **API pública (salud):** [Render /api/v1/health](https://carpidi-api.onrender.com/api/v1/health)
 
 El frontend se conecta a la API desplegada; no requiere Docker ni un servidor local para la demostración.
 
