@@ -35,7 +35,7 @@ Este documento constituye la **Fuente Única de Verdad Técnica y de Experiencia
 
 ### 5. Diferencia entre Información del PDF y Evidencia del Código
 - **Información del PDF / Diseños Stitch:** Refleja la visión gráfica, capturas funcionales del MVP ejecutado y una maqueta de alta fidelidad (*Main Dashboard*, página 8) con características aspiracionales (Wishlist/favoritos, banners de curaduría por categorías, newsletter, paginación infinita de archivo y membresía *Maison Privé*).
-- **Evidencia del Código:** Refleja el estado ejecutable y desplegado en Google Cloud Run y Vercel. En el código, la pantalla de inicio `/` está servida directamente por [`CatalogPage.tsx`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/pages/CatalogPage.tsx); el carrito y el formulario de checkout conviven en la misma ruta `/carrito` de [`CartPage.tsx`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/pages/CartPage.tsx); no existe pantalla separada para checkout ni sistema de lista de deseos; y la consulta de pedidos de administradores está restringida a nivel de servicio al correo del propio usuario. Cualquier discordancia se documenta explícitamente en este archivo como brecha funcional o técnica.
+- **Evidencia del Código:** Refleja el estado ejecutable y desplegado en Render, Supabase y Vercel. En el código, la pantalla de inicio `/` está servida directamente por [`CatalogPage.tsx`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/pages/CatalogPage.tsx); el carrito y el formulario de checkout conviven en la misma ruta `/carrito` de [`CartPage.tsx`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/pages/CartPage.tsx); no existe pantalla separada para checkout ni sistema de lista de deseos; y la consulta de pedidos de administradores está restringida a nivel de servicio al correo del propio usuario. Cualquier discordancia se documenta explícitamente en este archivo como brecha funcional o técnica.
 
 ---
 
@@ -57,11 +57,11 @@ CARPIDI implementa una separación limpia entre ambientes locales y productivos:
 
 | Parámetro | Entorno | Valor Real en Repositorio | Descripción / Ubicación |
 | --- | --- | --- | --- |
-| `VITE_API_URL` | Producción (Vercel) | `/api/v1` | Configurado en [`frontend/.env.production`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/.env.production). Vercel reenvía las peticiones mediante rewrite a la URL de Cloud Run. |
-| `VITE_API_URL` | Producción Ejemplo | `https://REEMPLAZAR_CON_URL_DE_CLOUD_RUN/api/v1` | Documentado en [`frontend/.env.production.example`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/.env.production.example). |
+| `VITE_API_URL` | Producción (Vercel) | `/api/v1` | Configurado en [`frontend/.env.production`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/.env.production). Vercel reenvía las peticiones mediante rewrite a Render. |
+| `VITE_API_URL` | Producción Ejemplo | `https://REEMPLAZAR_CON_URL_DE_RENDER/api/v1` | Documentado en [`frontend/.env.production.example`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/.env.production.example). |
 | `VITE_API_URL` | Fallback Local | `http://localhost:8080/api/v1` | Configurado como fallback predeterminado en [`frontend/src/services/api.ts`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/services/api.ts). |
-| Backend Cloud Run Real | Producción Desplegada | `https://carpidi-api-a3w662uxxq-uc.a.run.app/api/v1` | Verificado en [`frontend/vercel.json`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/vercel.json) y [`README.md`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/README.md) L52. |
-| Frontend Web Real | Producción Desplegada | `https://carpidi-web.carlosgcb74.chatgpt.site` | Verificado en [`README.md`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/README.md) L51. |
+| Backend Render Real | Producción Desplegada | `https://carpidi-api.onrender.com/api/v1` | Verificado en [`frontend/vercel.json`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/vercel.json) y [`README.md`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/README.md). |
+| Frontend Vercel Real | Producción Desplegada | `https://carpidi.vercel.app` | Verificado en [`README.md`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/README.md). |
 
 > [!NOTE]
 > El proyecto no utiliza `NEXT_PUBLIC_API_URL` debido a que el cliente está construido con Vite y React Router. Todas las referencias públicas se realizan mediante el prefijo `VITE_`.
@@ -942,7 +942,7 @@ flowchart TD
 | **Admin** | Cargar métricas órdenes | `GET` | `/api/v1/orders` | Ninguno (Bearer Token) | `List<OrderView>` (órdenes del usuario) | Sí | `ADMIN` | KPI Pedidos y Ventas COP | Implementado en [`orders.ts`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/services/orders.ts) |
 | **Admin** | Publicar producto | `POST` | `/api/v1/products` | `CreateProductRequest(categoryId, slug, name, description, basePrice, active, variants)` | `ProductView` | Sí | `ADMIN` | Mensaje éxito / Reset form | Implementado en [`catalog.ts`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/services/catalog.ts) |
 | **Admin** | Desactivar prenda | `DELETE` | `/api/v1/products/{id}` | Path: `id` (UUID) | `204 No Content` | Sí | `ADMIN` | Confirmación / Recarga lista | Implementado en [`catalog.ts`](file:///c:/Users/jusnf/Desktop/Carpidi/carpidi/frontend/src/services/catalog.ts) |
-| **Sistema** | Chequeo de salud | `GET` | `/api/v1/health` | Ninguno | `{"status":"UP","service":"carpidi-api","timestamp":"..."}` | No | Ninguno | Verificación DevOps/Cloud Run | Sin pantalla (Backend directo) |
+| **Sistema** | Chequeo de salud | `GET` | `/api/v1/health` | Ninguno | `{"status":"UP","service":"carpidi-api","timestamp":"..."}` | No | Ninguno | Verificación DevOps/Render | Sin pantalla (Backend directo) |
 | **Sesión** | Renovar sesión JWT | `POST` | `/api/v1/auth/refresh-token` | `RefreshRequest(refreshToken)` | `TokenResponse(accessToken, refreshToken, expiresIn)` | No | Ninguno | Sin llamada automática en cliente | Implementado en backend; pendiente interceptor |
 | **Sesión** | Revocar token servidor| `POST` | `/api/v1/auth/logout` | `RefreshRequest(refreshToken)` | `204 No Content` | No | Ninguno | Solo limpia local en `logout()` | Implementado en backend; no llamado en frontend |
 | **Admin** | Crear categoría | `POST` | `/api/v1/categories` | `CreateCategoryRequest(name, slug)` | `CategoryView(id, name, slug)` | Sí | `ADMIN` | Sin interfaz de creación en UI | Implementado en backend; sin UI en `AdminPage` |

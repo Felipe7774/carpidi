@@ -287,6 +287,30 @@ button.secondary-stitch:hover, a.secondary-stitch:hover {
   font-size: 0.85rem;
 }
 
+.alert-with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.retry-button {
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.retry-button:hover { background: rgba(153, 27, 27, 0.08); }
+
 .alert-success {
   padding: 0.85rem 1.25rem;
   background-color: #ECFDF5;
@@ -316,6 +340,37 @@ button.secondary-stitch:hover, a.secondary-stitch:hover {
   color: var(--text-muted);
   font-size: 0.9rem;
   letter-spacing: 0.05em;
+}
+
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, #eee8e1 25%, #f8f5f1 50%, #eee8e1 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.skeleton-card { pointer-events: none; }
+.skeleton-product-image { width: 100%; height: 270px; border-radius: 120px 120px 4px 4px; }
+.skeleton-line { height: 0.8rem; border-radius: 3px; margin-top: 0.7rem; }
+.skeleton-line-short { width: 32%; }
+.skeleton-line-title { width: 76%; height: 1.2rem; }
+.skeleton-line-price { width: 40%; }
+.skeleton-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+.skeleton-button { height: 2.25rem; flex: 1; border-radius: 4px; }
+.skeleton-detail { min-height: 440px; border-radius: 200px 200px 6px 6px; }
+.skeleton-order { height: 9rem; border-radius: 8px; }
+.skeleton-admin { height: 8rem; border-radius: 8px; }
+.orders-skeleton-stack, .admin-skeleton-grid { display: grid; gap: 1.5rem; }
+.admin-skeleton-grid { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 900px) {
+  .admin-skeleton-grid { grid-template-columns: 1fr; }
+  .alert-with-action { align-items: flex-start; flex-direction: column; }
 }
 
 /* Hero Section (Stitch Página 8) */

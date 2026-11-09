@@ -122,6 +122,22 @@ de producto utiliza desplazamiento vertical de `-3px` y una sombra suave.
 
 ## 6. Componentes
 
+### Equivalencias con Shadcn UI
+
+El proyecto conserva sus clases visuales de CARPIDI para no romper la fidelidad de
+Stitch, pero las responsabilidades quedan alineadas con primitivas de Shadcn UI:
+
+| Implementación CARPIDI | Equivalente Shadcn UI | Uso |
+|---|---|---|
+| `.card` | `Card` | Contenedores de catálogo, formularios y panel |
+| `.button-stitch`, `.secondary-stitch` | `Button` (`default` / `outline`) | Acciones primarias y secundarias |
+| `.alert-error`, `.alert-success` | `Alert` (`destructive` / `default`) | Error, éxito y mensajes semánticos |
+| `Skeleton` de `components/ui/Feedback.tsx` | `Skeleton` | Loading visual sin saltos de layout |
+| `RetryAlert` de `components/ui/Feedback.tsx` | `Alert` + `Button` | Error recuperable con reintento |
+
+Esta equivalencia documentada permite migrar a componentes Shadcn UI sin crear un
+sistema visual paralelo ni perder los tokens de Stitch.
+
 ### Header
 
 1. Barra de anuncios oscura (`#1C1917`), texto blanco, mayúsculas y tracking.

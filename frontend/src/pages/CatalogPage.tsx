@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Category, getCategories, getProducts, Product } from '../services/catalog';
 import { useCart } from '../state/CartContext';
+import { ProductGridSkeleton, RetryAlert } from '../components/ui/Feedback';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -140,8 +141,8 @@ export function CatalogPage() {
         </div>
       )}
 
-      {loading && <div className="loading-state" role="status">Cargando catálogo…</div>}
-      {error && <div className="alert-error" role="alert" style={{ marginBottom: '2rem' }}>{error}</div>}
+      {loading && <ProductGridSkeleton />}
+      {error && <RetryAlert message={error} onRetry={() => void loadCatalog()} />}
 
       {!loading && !error && products.length === 0 && (
         <div className="empty-state">

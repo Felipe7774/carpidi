@@ -12,6 +12,7 @@ import {
 } from '../services/catalog';
 import { getOrders, Order } from '../services/orders';
 import { useAuth } from '../state/AuthContext';
+import { RetryAlert, Skeleton } from '../components/ui/Feedback';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -234,9 +235,13 @@ export function AdminPage() {
           </div>
         </div>
 
-        {error && <div className="alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>{error}</div>}
+        {error && <RetryAlert message={error} onRetry={() => void loadData()} />}
         {success && <div className="alert-success" role="status" style={{ marginBottom: '1.5rem' }}>{success}</div>}
-        {loading && <div className="loading-state">Sincronizando datos con el backend…</div>}
+        {loading && (
+          <div className="admin-skeleton-grid" role="status" aria-label="Sincronizando datos">
+            {[1, 2, 3].map(item => <Skeleton className="skeleton-admin" key={item} />)}
+          </div>
+        )}
       </div>
 
       {/* Modal / Formulario de Edición de Producto */}

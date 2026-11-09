@@ -19,6 +19,7 @@ coverage/
 Thumbs.db
 *.log
 *.tsbuildinfo
+.agents/*.local.json
 carpidi-site.zip
 carpidi-site.tar.gz
 .sites-archive-temp-*/

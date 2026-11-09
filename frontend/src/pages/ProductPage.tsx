@@ -1,8 +1,9 @@
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getProduct, Product } from '../services/catalog';
 import { useCart } from '../state/CartContext';
+import { RetryAlert, Skeleton } from '../components/ui/Feedback';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -14,10 +15,13 @@ export function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
-    getProduct(id)
+  const loadProduct = useCallback(() => {
+    if (!id) return Promise.resolve();
+    setLoading(true);
+    setError('');
+    return getProduct(id)
       .then(fetchedProduct => {
         setProduct(fetchedProduct);
         const firstAvailable = fetchedProduct.variants.find(v => v.available > 0) ?? fetchedProduct.variants[0];
@@ -28,8 +32,11 @@ export function ProductPage() {
       .catch((cause: unknown) => {
         const status = cause instanceof AxiosError ? cause.response?.status : undefined;
         setError(status === 404 ? 'Esta prenda ya no está disponible en el catálogo.' : 'No fue posible cargar el detalle del producto.');
-      });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => { void loadProduct(); }, [loadProduct]);
 
   const selectedVariant = product?.variants.find(variant => variant.id === selectedVariantId) ?? product?.variants[0];
 
@@ -37,14 +44,24 @@ export function ProductPage() {
     return (
       <div className="card narrow" style={{ textAlign: 'center' }}>
         <h1 style={{ fontSize: '1.75rem' }}>Prenda no disponible</h1>
-        <p className="alert-error" role="alert" style={{ margin: '1.5rem 0' }}>{error}</p>
+        <RetryAlert message={error} onRetry={() => void loadProduct()} />
         <Link to="/catalogo" className="button-stitch">Volver al catálogo</Link>
       </div>
     );
   }
 
-  if (!product) {
-    return <div className="loading-state" role="status">Cargando prenda exclusiva…</div>;
+  if (loading || !product) {
+    return (
+      <div className="card product-detail-layout" role="status" aria-label="Cargando detalle del producto">
+        <Skeleton className="skeleton-detail" />
+        <div style={{ display: 'grid', alignContent: 'center', gap: '1rem' }}>
+          <Skeleton style={{ height: '0.8rem', width: '30%' }} />
+          <Skeleton style={{ height: '3rem', width: '75%' }} />
+          <Skeleton style={{ height: '1.2rem', width: '35%' }} />
+          <Skeleton style={{ height: '5rem', width: '100%' }} />
+        </div>
+      </div>
+    );
   }
 
   const handleAddToCart = () => {

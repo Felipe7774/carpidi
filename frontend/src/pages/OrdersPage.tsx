@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getOrders, Order } from '../services/orders';
 import { useAuth } from '../state/AuthContext';
+import { RetryAlert, Skeleton } from '../components/ui/Feedback';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -11,16 +12,17 @@ export function OrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      setLoading(true);
-      setError('');
-      getOrders()
-        .then(setOrders)
-        .catch(() => setError('No fue posible cargar tu historial de pedidos. Inténtalo más tarde.'))
-        .finally(() => setLoading(false));
-    }
+  const loadOrders = useCallback(() => {
+    if (!user) return Promise.resolve();
+    setLoading(true);
+    setError('');
+    return getOrders()
+      .then(setOrders)
+      .catch(() => setError('No fue posible cargar tu historial de pedidos. Inténtalo más tarde.'))
+      .finally(() => setLoading(false));
   }, [user]);
+
+  useEffect(() => { void loadOrders(); }, [loadOrders]);
 
   if (!user) {
     return (
@@ -54,8 +56,12 @@ export function OrdersPage() {
         <p style={{ color: '#78716C', marginTop: '0.35rem' }}>Consulta el estado, fecha y detalle de tus piezas adquiridas en CARPIDI.</p>
       </div>
 
-      {loading && <div className="loading-state" role="status">Cargando tus compras…</div>}
-      {error && <div className="alert-error" role="alert" style={{ marginBottom: '2rem' }}>{error}</div>}
+      {loading && (
+        <div className="orders-skeleton-stack" role="status" aria-label="Cargando pedidos">
+          {[1, 2, 3].map(item => <Skeleton className="skeleton-order" key={item} />)}
+        </div>
+      )}
+      {error && <RetryAlert message={error} onRetry={() => void loadOrders()} />}
 
       {!loading && !error && orders.length === 0 && (
         <div className="empty-state">

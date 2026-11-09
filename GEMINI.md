@@ -35,13 +35,13 @@ Eres un agente experto en desarrollo de software operando en el entorno de Antig
 * Antes de finalizar cambios backend ejecuta `mvn test` y `mvn package`.
 * Reporta los archivos modificados, pruebas ejecutadas, resultados y riesgos pendientes.
 
-## 2. Reglas de Negocio y Base de Datos (GCP)
+## 2. Reglas de Negocio y Base de Datos (Supabase)
 * **Lógica de Negocio:** Basa todas tus implementaciones en los archivos de requerimientos y reglas entregados en este repositorio (`docs/requisitos.md`, `docs/servicios-de-negocio.md`, `docs/modelo-datos.md`, etc.).
 * **Estándares SQL:** Todas las consultas (queries), esquemas y modificaciones a la base de datos deben seguir estrictamente las reglas SQL establecidas para este proyecto.
 
 ## 3. Seguridad y Prevención de Fugas de Datos (CRÍTICO)
 * **Cero Credenciales:** Tienes ESTRICTAMENTE PROHIBIDO almacenar, hardcodear o registrar contraseñas en el código fuente o en la documentación.
-* **Protección GCP:** Jamás debes exponer, almacenar o imprimir las Keys/Credenciales de conexión a la base de datos de Google Cloud Platform (GCP). Maneja todo a través de variables de entorno o referencias a gestores de secretos.
+* **Protección de infraestructura:** Jamás debes exponer, almacenar o imprimir las keys o credenciales de Supabase, Render, Vercel, Stitch, NotebookLM o cualquier servicio externo. Maneja todo a través de variables de entorno o referencias a gestores de secretos.
 
 ## 4. Registro de Solución de Problemas (Troubleshooting)
 * **Documentación Continua:** Cada vez que generes, identifiques y soluciones un error durante el desarrollo, debes documentar obligatoriamente la falla y su solución.

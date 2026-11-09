@@ -44,7 +44,7 @@ La primera versión del producto incluirá:
 3. En otra terminal: `cd frontend`, `npm install` y `npm run dev`.
 4. La API queda en `http://localhost:8080/api/v1` y el frontend en el puerto indicado por Vite.
 
-En GCP, las credenciales de Cloud SQL y el secreto JWT se suministrarán mediante Secret Manager y la cuenta de servicio de Cloud Run.
+En producción, la API se ejecuta en Render y la base de datos PostgreSQL está administrada por Supabase. Los secretos se configuran como variables de entorno del proveedor; nunca se guardan en el repositorio.
 
 ## Enlaces de demostración
 

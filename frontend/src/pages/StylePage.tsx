@@ -1,7 +1,8 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getRecommendations, Recommendation, saveQuestionnaire } from '../services/recommendations';
 import { useAuth } from '../state/AuthContext';
+import { ProductGridSkeleton, RetryAlert } from '../components/ui/Feedback';
 
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
@@ -17,16 +18,19 @@ export function StylePage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [recommendationError, setRecommendationError] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      setLoadingRecs(true);
-      getRecommendations()
-        .then(setRecommendations)
-        .catch(() => undefined)
-        .finally(() => setLoadingRecs(false));
-    }
+  const loadRecommendations = useCallback(() => {
+    if (!user) return Promise.resolve();
+    setLoadingRecs(true);
+    setRecommendationError('');
+    return getRecommendations()
+      .then(setRecommendations)
+      .catch(() => setRecommendationError('No fue posible cargar tus recomendaciones.'))
+      .finally(() => setLoadingRecs(false));
   }, [user]);
+
+  useEffect(() => { void loadRecommendations(); }, [loadRecommendations]);
 
   if (!user) {
     return (
@@ -163,16 +167,17 @@ export function StylePage() {
         <p className="eyebrow">Curaduría Personalizada</p>
         <h2 className="serif-title" style={{ fontSize: '1.75rem', marginBottom: '1.5rem' }}>Recomendaciones para ti</h2>
 
-        {loadingRecs && <div className="loading-state" role="status">Analizando tus preferencias de silueta y color…</div>}
+        {loadingRecs && <ProductGridSkeleton count={3} />}
+        {recommendationError && <RetryAlert message={recommendationError} onRetry={() => void loadRecommendations()} />}
 
-        {!loadingRecs && recommendations.length === 0 && (
+        {!loadingRecs && !recommendationError && recommendations.length === 0 && (
           <div className="empty-state">
             <h3>Aún no tienes recomendaciones</h3>
             <p>Diligencia el cuestionario de estilo superior para que nuestro motor seleccione prendas afines a tu morfología.</p>
           </div>
         )}
 
-        {!loadingRecs && recommendations.length > 0 && (
+        {!loadingRecs && !recommendationError && recommendations.length > 0 && (
           <div className="products-grid">
             {recommendations.map(item => (
               <article key={item.productId} className="product-card-stitch">
